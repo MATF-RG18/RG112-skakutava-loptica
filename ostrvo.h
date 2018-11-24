@@ -1,7 +1,6 @@
 #ifndef OSTRVO_H
 #define OSTRVO_H
 
-void draw_i();
-
+void nacrtaj_sigurno_ostrvo();
 
 #endif

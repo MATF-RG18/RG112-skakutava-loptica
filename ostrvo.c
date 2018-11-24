@@ -3,7 +3,8 @@
 #include <GL/glut.h>
 #include "ostrvo.h"
 
-void draw_i(){
+
+void nacrtaj_sigurno_ostrvo(){
     glColor3f(0,0.5,0.5);
     glTranslatef(0,-5,0);
     glutSolidCube(2);
