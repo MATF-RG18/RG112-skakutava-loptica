@@ -25,7 +25,14 @@
 	float h=20;
 
 	int pom=0;
+    int pom_linija=0;
+    //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (i)
+    int pom_linija2=0;
 
+    int pom_k=0;
+    //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
+    int pom_k2=3;
+    
 	float x_sig=0;
 	float y_sig=0;
 
@@ -59,8 +66,10 @@
 	void idi_napred();
 	void idi_nazad();
 	void skok_uvis();
-
-	void resetuj();
+    void skok_napred();
+//     void skok_levo();
+       
+    void resetuj();
 
 	void postavi_sliku();
 
@@ -91,15 +100,6 @@
 	    if(slika_pozadine==0){
 	     printf("Nije ucitana slika\n");   
 	    }
-	   
-	   /*int i,j; 
-	   for(i=0;i<10;i++){
-	    for(j=0;j<20;j++){
-	    printf("%d ", matrica[i][j]);   
-	   }    
-	      printf("\n");
-	  }
-	   */ 
 	    inicijalizacija_m_o();
 
 	    glutMainLoop();
@@ -109,25 +109,30 @@
 
 	static void on_keyboard(unsigned char key, int x, int y){
 	    switch(key){
-		case 27:
-		    exit(0);
-		    break;
-		case 'l':
-		    idi_desno();
-		    break;
-		case 'j':
-		    idi_levo();
-		    break;
-		case 'i':
-		    idi_napred();
-		    break;
-		case 'm':
-		    idi_nazad();
-		    break;
-		case 's':
-		    skok_uvis();
-		    break;
-	    }
+            case 27:
+                exit(0);
+                break;
+            case 'l':
+                idi_desno();
+                break;
+            case 'j':
+                idi_levo();
+                break;
+            case 'i':
+                idi_napred();
+                break;
+            case 'm':
+                idi_nazad();
+                break;
+            case 's':
+                skok_uvis();
+                break;
+            
+            case 'w':
+                skok_napred();
+                break;
+            
+        }
 	    
 	}
 	static void on_timer(int value){
@@ -288,36 +293,39 @@
 	 glPopMatrix();
 	}
 	void idi_desno(){
+        x_c-=0.1;
 	    if(pom==0){
-		x_c-=0.1;
-		if(x_c<-0.3 ){ 
-		    resetuj();
-		}
+            if(x_c<-0.3 ){ 
+                resetuj();
+            }
 	    }
 	}
 	void idi_levo(){
+        x_c+=0.1;   
 	    if(pom==0){
-		x_c+=0.1;   
-		if(x_c>0.3){
-		    resetuj();
+            if(x_c>0.3){
+                resetuj();
+            }
 	    }
-	    }
+	    
 	}
 	void idi_napred(){
+        y_c+=0.1;
 	    if(pom==0){
-		y_c+=0.1;
-		if(y_c>0.3){
-		    resetuj();
-		}
+            if(y_c>0.3){
+                resetuj();
+            }
 	    }
+	    
 	}
 	void idi_nazad(){
+        y_c-=0.1;
 	    if(pom==0){
-		y_c-=0.1;
-		if(y_c<-0.3){
-		    resetuj();
-		}
+            if(y_c<-0.3){
+                resetuj();
+            }
 	    }
+	    
 	}
 	void skok_uvis(){
 	    vis_c+=.1;
@@ -325,9 +333,32 @@
          resetuj();   
         }
 	}
+    void skok_napred(){
+        pom++;
+        y_c+=0.1;
+        vis_c+=0.08;
+        pom_linija++;
+        printf("p1 :%d\n", pom_linija);
+        if(pom_linija==6){
+//             if(y_c>=0.5){
+                vis_c=0.02;
+            pom_linija2++;
+            pom_linija=0;
+            if(pom_linija2>=7){
+             resetuj();   
+            }
+         printf("p2 : %d\n", pom_linija2);
+        }
+        printf("pom: %d\n", pom);
+     }
 	void resetuj(){
 	 x_c=0;
 	 y_c=0;
      vis_c=0;
+     pom=0;
+     pom_k=0;
+     pom_k2=3;
+     pom_linija=0;
+     pom_linija2=0;
 // 	 printf("Kraj\n");
 	}
