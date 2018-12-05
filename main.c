@@ -10,11 +10,9 @@
 	#define BR_OSTRVA_A 6
 	#define BR_OSTRVA_B 6
 
-	int matrica[10][20];
 
 	static int animation=0;
 
-	int lvl=1;
 
 	//lopta
 	float x_c=0;
@@ -24,12 +22,14 @@
 	float w=20;
 	float h=20;
 
+    
 	int pom=0;
     int pom_linija=0;
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (i)
     int pom_linija2=0;
 
     int pom_k=0;
+  
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
     int pom_k2=3;
     
@@ -67,7 +67,7 @@
 	void idi_nazad();
 	void skok_uvis();
     void skok_napred();
-//     void skok_levo();
+    void skok_levo();
        
     void resetuj();
 
@@ -131,8 +131,11 @@
             case 'w':
                 skok_napred();
                 break;
+            case 'a':
+                skok_levo();
+                break;
             
-        }
+            }
 	    
 	}
 	static void on_timer(int value){
@@ -250,12 +253,6 @@
 	}
 	void nacrtaj_manja_ostrva(){
 	    int i;
-	//     int poz=0;
-	  /*  
-		if(!time_active){
-		    time_active=1;
-		    glutTimerFunc(50,on_timer,0);
-		}*/
 	    for(i=0;i<BR_OSTRVA;i++){
 		GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
@@ -338,19 +335,40 @@
         y_c+=0.1;
         vis_c+=0.08;
         pom_linija++;
-        printf("p1 :%d\n", pom_linija);
+//         printf("p1 :%d\n", pom_linija);
         if(pom_linija==6){
-//             if(y_c>=0.5){
                 vis_c=0.02;
             pom_linija2++;
             pom_linija=0;
             if(pom_linija2>=7){
              resetuj();   
             }
-         printf("p2 : %d\n", pom_linija2);
+//          printf("p2 : %d\n", pom_linija2);
         }
-        printf("pom: %d\n", pom);
+//         printf("pom: %d\n", pom);
      }
+    void skok_levo(){
+
+        vis_c+=0.08;
+        x_c+=0.1;
+        pom_k++;
+        //ako pokusamo da skocimo sa sigurnog ostrva ulevo 
+        if(pom==0){ 
+          resetuj();   
+        }
+        
+        if(pom_k==5){
+                vis_c=0.02;
+                pom_k2--;
+                pom_k=0;
+//                 printf("k: %d\n", pom_k);
+//                 printf("k2: %d\n", pom_k2);
+                if(pom_k2<=0){
+                    resetuj();   
+                }
+        }
+        
+    }
 	void resetuj(){
 	 x_c=0;
 	 y_c=0;
