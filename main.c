@@ -58,7 +58,7 @@
 
 	void idi_napred();
 	void idi_nazad();
-	void skoci();
+	void skok_uvis();
 
 	void resetuj();
 
@@ -125,7 +125,7 @@
 		    idi_nazad();
 		    break;
 		case 's':
-		    skoci();
+		    skok_uvis();
 		    break;
 	    }
 	    
@@ -319,11 +319,15 @@
 		}
 	    }
 	}
-	void skoci(){
+	void skok_uvis(){
 	    vis_c+=.1;
+        if(vis_c==0.5){
+         resetuj();   
+        }
 	}
 	void resetuj(){
 	 x_c=0;
 	 y_c=0;
+     vis_c=0;
 // 	 printf("Kraj\n");
 	}
