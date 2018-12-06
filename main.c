@@ -69,6 +69,7 @@
 	void skok_uvis();
     void skok_napred();
     void skok_levo();
+    void skok_nazad();
        
     void resetuj();
 
@@ -102,7 +103,7 @@
 	     printf("Nije ucitana slika\n");   
 	    }
 	    inicijalizacija_m_o();
-
+        
 	    glutMainLoop();
 	    
 	    return 0;
@@ -125,10 +126,10 @@
             case 'm':
                 idi_nazad();
                 break;
+                
             case 's':
                 skok_uvis();
                 break;
-            
             case 'w':
                 skok_napred();
                 break;
@@ -138,7 +139,11 @@
             case 'd':
                 skok_desno();
                 break;
-            }
+            case 'x':
+                skok_nazad();
+                break;
+            
+        }
 	    
 	}
 	static void on_timer(int value){
@@ -282,7 +287,7 @@
 		    glTexCoord2f(1, 0);
 		    glVertex3f(30, -20, 0);
 		    glTexCoord2f(1, 1);
-		    glVertex3f(30, 20, 0);
+		    glVertex3f(50, 20, 0);
 		    glTexCoord2f(0, 1);
 		    glVertex3f(-5, 15, 0);
 		
@@ -346,9 +351,7 @@
             if(pom_linija2>=7){
              resetuj();   
             }
-//          printf("p2 : %d\n", pom_linija2);
         }
-//         printf("pom: %d\n", pom);
      }
     void skok_levo(){
 
@@ -364,8 +367,6 @@
                 vis_c=0.02;
                 pom_k2--;
                 pom_k=0;
-//                 printf("k: %d\n", pom_k);
-//                 printf("k2: %d\n", pom_k2);
                 if(pom_k2<=0){
                     resetuj();   
                 }
@@ -376,6 +377,7 @@
         vis_c+=0.08;
         x_c-=0.1;
         pom_k++;
+        //ako pokusamo da skocimo sa sigurnog ostrva udesno 
         if(pom==0){
          resetuj();   
         }
@@ -383,13 +385,30 @@
             vis_c=0.02;
             pom_k2++;
             pom_k=0;
-              printf("k: %d\n", pom_k);
+  /*            printf("k: %d\n", pom_k);
             printf("k2: %d\n", pom_k2);
-              
+              */
             if(pom_k2>=7){
               resetuj();   
             }
         }
+    }
+    void skok_nazad(){
+     vis_c+=0.08;
+     y_c-=0.1;
+     pom_linija++;
+     if(pom==0){
+      resetuj();   
+     }
+     if(pom_linija==6){
+         vis_c=0.02;
+         pom_linija2--;
+         pom_linija=0;
+         if(pom_linija2<=0){
+          resetuj();   
+         }
+     }
+        
     }
 	void resetuj(){
 	 x_c=0;
@@ -400,5 +419,5 @@
      pom_k2=3;
      pom_linija=0;
      pom_linija2=0;
-// 	 printf("Kraj\n");
+ 	 printf("Kraj, resetovano\n");
 	}
