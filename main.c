@@ -29,7 +29,6 @@
     int pom_linija2=0;
 
     int pom_k=0;
-  
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
     int pom_k2=3;
     
@@ -62,7 +61,9 @@
 
 	void idi_desno();
 	void idi_levo();
-
+    void skok_desno();
+                
+    
 	void idi_napred();
 	void idi_nazad();
 	void skok_uvis();
@@ -134,7 +135,9 @@
             case 'a':
                 skok_levo();
                 break;
-            
+            case 'd':
+                skok_desno();
+                break;
             }
 	    
 	}
@@ -230,11 +233,11 @@
 	void nacrtaj_sigurno_ostrvo(){
 	    
 	    glPushMatrix();
-		glColor3f(0,0.5,0.5);
-		glTranslatef(0.15,-0.1,-1);
-		glutSolidCube(0.35);
-		glScalef(5,1,1);
-	//        glTranslatef(0,0.45,0);
+            glColor3f(0,0.5,0.5);
+            glTranslatef(0.15,-0.1,-1);
+            glutSolidCube(0.35);
+            glScalef(5,1,1);
+        //        glTranslatef(0,0.45,0);
 	    glPopMatrix();
 	}
 
@@ -368,6 +371,25 @@
                 }
         }
         
+    }
+    void skok_desno(){
+        vis_c+=0.08;
+        x_c-=0.1;
+        pom_k++;
+        if(pom==0){
+         resetuj();   
+        }
+        if(pom_k==5){
+            vis_c=0.02;
+            pom_k2++;
+            pom_k=0;
+              printf("k: %d\n", pom_k);
+            printf("k2: %d\n", pom_k2);
+              
+            if(pom_k2>=7){
+              resetuj();   
+            }
+        }
     }
 	void resetuj(){
 	 x_c=0;
