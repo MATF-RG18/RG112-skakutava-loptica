@@ -12,7 +12,9 @@
     #define TIMER_ID 0
 
 	static int animation=0;
-
+    
+    //prikazuje nam koji skok zelimo
+    int pomocna_animation=0;
 
 	//lopta
 	float x_c=0;
@@ -32,7 +34,6 @@
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
     int pom_k2=3;
     
-    int pomocna_animation=0;
     
 	float x_sig=0;
 	float y_sig=0;
@@ -46,8 +47,7 @@
 
 	float o_visina=.1;
 	float o_dubina=0.1;
-	float animation_f=0;
-	// float time_active;
+// 	float animation_f=0;
 	float t=0;
 	float poz_g=.6;
 	Ostrva ostrva[25];
@@ -148,9 +148,13 @@
                 animation=1;
                 break;
             case 'a':
-                
-                skok_levo();
-                
+//                 skok_levo();
+                if(!animation){
+                 glutTimerFunc(20,on_timer,TIMER_ID);
+                 glutPostRedisplay();
+                }
+                pomocna_animation=3;
+                animation=1;
                 break;
             case 'd':
                 skok_desno();
@@ -159,11 +163,17 @@
                  glutPostRedisplay();
                  
                 }
-                pomocna_animation=3;
+                pomocna_animation=4;
                 animation=1;
                 break;
             case 'x':
-                skok_nazad();
+//                 skok_nazad();
+                if(!animation){
+                 glutTimerFunc(20,on_timer,TIMER_ID);
+                 glutPostRedisplay();
+                }
+                pomocna_animation=5;
+                animation=1;
                 break;
             
         }
@@ -177,7 +187,7 @@
              skok_uvis();
             glutPostRedisplay();
             if(animation){
-            glutTimerFunc(100,on_timer,TIMER_ID);   
+            glutTimerFunc(70,on_timer,TIMER_ID);   
             
             }
         }
@@ -185,14 +195,28 @@
             skok_napred();
             glutPostRedisplay();
             if(animation){
-             glutTimerFunc(100,on_timer,TIMER_ID);   
+             glutTimerFunc(70,on_timer,TIMER_ID);   
             }
         }
         else if(pomocna_animation==3){
+            skok_levo();
+            glutPostRedisplay();
+            if(animation){
+             glutTimerFunc(70,on_timer,TIMER_ID);   
+            }
+        }
+        else if(pomocna_animation==4){
             skok_desno();
             glutPostRedisplay();
             if(animation){
-             glutTimerFunc(100,on_timer,TIMER_ID);   
+             glutTimerFunc(70,on_timer,TIMER_ID);   
+            }
+        }
+        else if(pomocna_animation==5){
+            skok_nazad();
+            glutPostRedisplay();
+            if(animation){
+             glutTimerFunc(70,on_timer,TIMER_ID);   
             }
         }
 	}
@@ -408,6 +432,7 @@
                 vis_c=0.02;
                 pom_k2--;
                 pom_k=0;
+                animation=0;
                 if(pom_k2<=0){
                     resetuj();   
                 }
@@ -446,6 +471,7 @@
          vis_c=0.02;
          pom_linija2--;
          pom_linija=0;
+         animation=0;
          if(pom_linija2<=0){
           resetuj();   
          }
