@@ -51,7 +51,7 @@
 	Ostrva ostrva[25];
 
 	GLuint slika_pozadine;
-	void ucitaj();
+// 	void ucitaj();
 
 	void nacrtaj_l();
 	void nacrtaj_sigurno_ostrvo();
@@ -83,7 +83,7 @@
 	int main (int argc, char ** argv){
 	    
 	   
-	    ucitaj();
+// 	    ucitaj();
 	    
 	    glutInit(&argc, argv);
 	    glutInitWindowSize(700,700);
@@ -132,6 +132,7 @@
                 break;
             case 'w':
                 skok_napred();
+                
                 break;
             case 'a':
                 skok_levo();
@@ -148,11 +149,12 @@
 	}
 	static void on_timer(int value){
 	    if(value!=0){
-		return;
+            return;
 	    }
 	    glutPostRedisplay();
 	    if(animation){
 	     glutTimerFunc(10,on_timer,0);   
+         
 	    }
 	}
 	static void on_reshape(int width , int height){
@@ -246,9 +248,6 @@
 	    glPopMatrix();
 	}
 
-	void ucitaj(){  
-	}
-
 	void inicijalizacija_m_o(){
 	    int i,j;
 	    for(i=0;i<BR_OSTRVA_A;i++){
@@ -330,12 +329,12 @@
                 resetuj();
             }
 	    }
-	    
 	}
 	void skok_uvis(){
 	    vis_c+=.1;
-        if(vis_c==0.5){
-         resetuj();   
+        printf("vis_c : %f\n", vis_c);
+        if(vis_c>=0.5){
+         vis_c=0.02;
         }
 	}
     void skok_napred(){
