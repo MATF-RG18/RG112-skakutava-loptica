@@ -9,7 +9,7 @@
 	#define BR_OSTRVA (36)
 	#define BR_OSTRVA_A 6
 	#define BR_OSTRVA_B 6
-
+    #define TIMER_ID 0
 
 	static int animation=0;
 
@@ -31,6 +31,8 @@
     int pom_k=0;
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
     int pom_k2=3;
+    
+    int pomocna_animation=0;
     
 	float x_sig=0;
 	float y_sig=0;
@@ -128,17 +130,37 @@
                 break;
                 
             case 's':
-                skok_uvis();
+//                  skok_uvis();
+                if(!animation){
+                 glutTimerFunc(20,on_timer,TIMER_ID);
+                 glutPostRedisplay();
+                }
+                pomocna_animation=1;
+                animation=1;
                 break;
             case 'w':
-                skok_napred();
-                
+//              skok_napred();
+                if(!animation){
+                 glutTimerFunc(20,on_timer,TIMER_ID);
+                 glutPostRedisplay();
+                }
+                pomocna_animation=2;
+                animation=1;
                 break;
             case 'a':
+                
                 skok_levo();
+                
                 break;
             case 'd':
                 skok_desno();
+                if(!animation){
+                 glutTimerFunc(20,on_timer,TIMER_ID);
+                 glutPostRedisplay();
+                 
+                }
+                pomocna_animation=3;
+                animation=1;
                 break;
             case 'x':
                 skok_nazad();
@@ -148,14 +170,31 @@
 	    
 	}
 	static void on_timer(int value){
-	    if(value!=0){
+	    if(value!=TIMER_ID){
             return;
 	    }
-	    glutPostRedisplay();
-	    if(animation){
-	     glutTimerFunc(10,on_timer,0);   
-         
-	    }
+	    if(pomocna_animation==1){
+             skok_uvis();
+            glutPostRedisplay();
+            if(animation){
+            glutTimerFunc(100,on_timer,TIMER_ID);   
+            
+            }
+        }
+        else if(pomocna_animation==2){
+            skok_napred();
+            glutPostRedisplay();
+            if(animation){
+             glutTimerFunc(100,on_timer,TIMER_ID);   
+            }
+        }
+        else if(pomocna_animation==3){
+            skok_desno();
+            glutPostRedisplay();
+            if(animation){
+             glutTimerFunc(100,on_timer,TIMER_ID);   
+            }
+        }
 	}
 	static void on_reshape(int width , int height){
 	 
@@ -332,10 +371,12 @@
 	}
 	void skok_uvis(){
 	    vis_c+=.1;
-        printf("vis_c : %f\n", vis_c);
+//         printf("vis_c : %f\n", vis_c);
         if(vis_c>=0.5){
          vis_c=0.02;
+         animation=0;
         }
+        
 	}
     void skok_napred(){
         pom++;
@@ -347,6 +388,7 @@
                 vis_c=0.02;
             pom_linija2++;
             pom_linija=0;
+            animation=0;
             if(pom_linija2>=7){
              resetuj();   
             }
@@ -387,6 +429,7 @@
   /*            printf("k: %d\n", pom_k);
             printf("k2: %d\n", pom_k2);
               */
+            animation=0;
             if(pom_k2>=7){
               resetuj();   
             }
