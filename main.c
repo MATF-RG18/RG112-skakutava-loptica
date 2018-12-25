@@ -3,15 +3,17 @@
 	#include <GL/glut.h>
 	#include <time.h>
 	#include <string.h>
+    #include <math.h>
 	#include "SOIL.h"
 
 
-	#define BR_OSTRVA (36)
 	#define BR_OSTRVA_A 6
-	#define BR_OSTRVA_B 6
     #define TIMER_ID 0
-
+    #define TIMER_ID1 1
+    #define TIMER_INTERVAL (20)
 	static int animation=0;
+    static int animation2=0;
+//     static int animation_skok=0;
     
     //prikazuje nam koji skok zelimo
     int pomocna_animation=0;
@@ -24,36 +26,36 @@
 	float w=20;
 	float h=20;
 
+    //Pocetne pozicije sigurnog ostrva
+    float sigurno_x=-1.5;
+    float sigurno_y=-.35;
+    float sigurno_z=-1.5;
     
 	int pom=0;
     int pom_linija=0;
+    
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (i)
     int pom_linija2=0;
 
     int pom_k=0;
+    
     //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
     int pom_k2=3;
     
     
+    float pomeranje_kocke=0;
+    int broj_milisec=0;
+    int broj_sekundi=0;
+    
 	float x_sig=0;
 	float y_sig=0;
 
-	//ostrva
-	typedef struct{
-	    float x_c;
-	    float d;
-	    int poz;
-	}Ostrva;
-
-	float o_visina=.1;
-	float o_dubina=0.1;
-// 	float animation_f=0;
-	float t=0;
-	float poz_g=.6;
-	Ostrva ostrva[25];
-
+    int matrica_ostrva[BR_OSTRVA_A][BR_OSTRVA_A];
+    
+    
 	GLuint slika_pozadine;
-// 	void ucitaj();
+
+    void postavi_sliku();
 
 	void nacrtaj_l();
 	void nacrtaj_sigurno_ostrvo();
@@ -75,17 +77,16 @@
        
     void resetuj();
 
-	void postavi_sliku();
 
 	static void on_keyboard(unsigned char key,int x,int y);
 	static void on_display(void);
 	static void on_timer(int value);
+    static void on_timer2(int value);
 	static void on_reshape(int width, int height);  
 
 	int main (int argc, char ** argv){
 	    
 	   
-// 	    ucitaj();
 	    
 	    glutInit(&argc, argv);
 	    glutInitWindowSize(700,700);
@@ -99,13 +100,12 @@
 	    glutKeyboardFunc(on_keyboard);
 	    glutReshapeFunc(on_reshape);
 	    glutDisplayFunc(on_display);
-	    
+	 
 	    slika_pozadine=SOIL_load_OGL_texture("sea.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
 	    if(slika_pozadine==0){
 	     printf("Nije ucitana slika\n");   
 	    }
-	    inicijalizacija_m_o();
-        
+      
 	    glutMainLoop();
 	    
 	    return 0;
@@ -116,108 +116,196 @@
             case 27:
                 exit(0);
                 break;
+             //POCETAK--->START!!!!
+            case 'o':
+                if(!animation2){
+                    animation2=1;
+                    glutTimerFunc(60,on_timer2,TIMER_ID1);
+                }
+                break;
+            case 'p':
+                if(animation2==1){
+                 animation2=0;   
+                }
+                break;
             case 'l':
-                idi_desno();
+                if(animation2==1){
+                    idi_desno();
+                }
                 break;
             case 'j':
-                idi_levo();
+                if(animation2==1){
+                    idi_levo();
+                }
                 break;
             case 'i':
-                idi_napred();
+                if(animation2==1){
+                    idi_napred();
+                }
                 break;
             case 'm':
-                idi_nazad();
-                break;
-                
-            case 's':
-//                  skok_uvis();
-                if(!animation){
-                 glutTimerFunc(20,on_timer,TIMER_ID);
-                 glutPostRedisplay();
+                if(animation2==1){
+                    idi_nazad();
                 }
-                pomocna_animation=1;
-                animation=1;
+                break;
+            case 's':
+//                skok_uvis();
+                if(animation2==1){
+                    if(animation==0){
+                        animation=1;
+                        pomocna_animation=1;
+                        glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
+                    }
+                }
                 break;
             case 'w':
 //              skok_napred();
-                if(!animation){
-                 glutTimerFunc(20,on_timer,TIMER_ID);
-                 glutPostRedisplay();
-                }
-                pomocna_animation=2;
-                animation=1;
+                 if(animation2==1){
+                    if(animation==0){
+                        pomocna_animation=2;
+                        animation=1;
+                        glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);
+                    }
+                 }
+                
                 break;
             case 'a':
 //                 skok_levo();
-                if(!animation){
-                 glutTimerFunc(20,on_timer,TIMER_ID);
-                 glutPostRedisplay();
-                }
-                pomocna_animation=3;
-                animation=1;
+                 if(animation2==1){
+                    if(!animation){
+                        pomocna_animation=3;
+                        animation=1;
+                        glutTimerFunc(20,on_timer,TIMER_ID);
+                    }
+                 }
                 break;
             case 'd':
                 skok_desno();
-                if(!animation){
-                 glutTimerFunc(20,on_timer,TIMER_ID);
-                 glutPostRedisplay();
-                 
-                }
-                pomocna_animation=4;
-                animation=1;
+                 if(animation2==1){
+                    if(!animation){
+                        pomocna_animation=4;
+                        animation=1;
+                        glutTimerFunc(20,on_timer,TIMER_ID);
+                    
+                    }
+                 }
                 break;
             case 'x':
 //                 skok_nazad();
-                if(!animation){
-                 glutTimerFunc(20,on_timer,TIMER_ID);
-                 glutPostRedisplay();
-                }
-                pomocna_animation=5;
-                animation=1;
+                 if(animation2==1){
+                    if(!animation){
+                        pomocna_animation=5;
+                        animation=1;
+                        glutTimerFunc(20,on_timer,TIMER_ID);
+                    }
+                 }
+                break;            
+            case 'q':
+                 if(animation2==1){
+                    if(!animation){
+                        pomocna_animation=6;
+                        animation=1;
+                        glutTimerFunc(20,on_timer,TIMER_ID);
+                    }
+                 }
                 break;
-            
+                
         }
 	    
 	}
+	static void on_timer2(int value){
+        if(value!=TIMER_ID1)
+            return;
+        
+        sigurno_y-=0.002;
+        if(sigurno_y<=-1){
+         sigurno_y=-1;   
+         
+        }   
+         /*
+	    broj_milisec+=70;
+        if(broj_milisec>1000){
+         broj_sekundi+=1;
+         broj_milisec=0;           
+        }
+	    if(broj_sekundi>2){
+         broj_sekundi=0;
+         if(pomeranje_kocke>1.6){
+            pomeranje_kocke=pomeranje_kocke-0.8;
+         }
+         else{
+           pomeranje_kocke=pomeranje_kocke+0.8;
+         } */
+        glutPostRedisplay();
+        if(animation2==1){
+         glutTimerFunc(60,on_timer2,TIMER_ID1);   
+        }
+        
+    }
+	
 	static void on_timer(int value){
-	    if(value!=TIMER_ID){
+	    if(value!=TIMER_ID && value!=TIMER_ID1){
             return;
 	    }
-	    if(pomocna_animation==1){
-             skok_uvis();
-            glutPostRedisplay();
-            if(animation){
-            glutTimerFunc(70,on_timer,TIMER_ID);   
-            
-            }
+	    
+	    
+        /*
+	    broj_milisec+=70;
+        if(broj_milisec>1000){
+         broj_sekundi+=1;
+         broj_milisec=0;           
         }
-        else if(pomocna_animation==2){
-            skok_napred();
-            glutPostRedisplay();
-            if(animation){
-             glutTimerFunc(70,on_timer,TIMER_ID);   
-            }
-        }
-        else if(pomocna_animation==3){
-            skok_levo();
-            glutPostRedisplay();
-            if(animation){
-             glutTimerFunc(70,on_timer,TIMER_ID);   
-            }
-        }
-        else if(pomocna_animation==4){
-            skok_desno();
-            glutPostRedisplay();
-            if(animation){
-             glutTimerFunc(70,on_timer,TIMER_ID);   
-            }
-        }
-        else if(pomocna_animation==5){
-            skok_nazad();
-            glutPostRedisplay();
-            if(animation){
-             glutTimerFunc(70,on_timer,TIMER_ID);   
-            }
+	    if(broj_sekundi>2){
+         broj_sekundi=0;
+         if(pomeranje_kocke>1.6){
+            pomeranje_kocke=pomeranje_kocke-0.8;
+         }
+         else{
+           pomeranje_kocke=pomeranje_kocke+0.8;
+         } */
+        switch(pomocna_animation){
+            case 1:
+                skok_uvis();
+                glutPostRedisplay();
+                 if(animation){
+                   glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                 }
+                break;   
+                
+            case 2:
+                 skok_napred();
+                 glutPostRedisplay();
+                 if(animation){
+                   glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                 }
+                 break;                
+            case 3:
+                skok_levo();
+                glutPostRedisplay();
+                if(animation){
+                    glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                }
+                break;
+               
+            case 4:
+                skok_desno();
+                glutPostRedisplay();
+                if(animation){
+                    glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                }
+                break;
+            case 5:
+                skok_nazad();
+                glutPostRedisplay();
+                if(animation==1){
+                glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                }
+                break;
+            default:
+                glutPostRedisplay();
+                if(animation==1){
+                    glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
+                }
         }
 	}
 	static void on_reshape(int width , int height){
@@ -227,7 +315,7 @@
 	    
 	    glLoadIdentity();
 	    
-	    gluPerspective(65,(float)width/(float)height,1,100);
+	    gluPerspective(60,(float)width/(float)height,1,1000);
 	    glutPostRedisplay();
 	}
 
@@ -241,8 +329,8 @@
 	    GLfloat light_specular[]={0.6,0.8,0.9,1};
 	    
 	    
-	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT0);
 	    
 	    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
@@ -262,9 +350,9 @@
 	    
 	    
 	    
-	    gluLookAt(-2,3,-2.3,
-		      -.5,1,1,
-		      0,1,0);
+	    gluLookAt(-1,4,-5,
+                   -2,1,1,
+                   0,1,0);
 	  
 	    
 	    glMatrixMode(GL_MODELVIEW);
@@ -272,7 +360,7 @@
 	    
 	    //glScalef(1,1,1);
         //slika pozadine
-        postavi_sliku();
+         postavi_sliku();
 	    //sigurno ostrvo
 	    nacrtaj_sigurno_ostrvo();
 	    
@@ -280,9 +368,10 @@
 	    nacrtaj_l();
 	   
 	    //manja ostrva
-	    nacrtaj_manja_ostrva();
+ 	    nacrtaj_manja_ostrva();
+        
 	    
-	    glFlush();
+ 	    glFlush();
 	    glutSwapBuffers();
 	}
 
@@ -293,8 +382,8 @@
 		glColor3f(1,0,0);
 		GLfloat  diffuse_coeffs[]={0.9,0.1,0.1,1};
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-		glTranslatef(x_c+0.15,vis_c+0.2,y_c-1);
-		glutSolidSphere(s, w,h);
+		glTranslatef(x_c-1.5,vis_c+0.2,y_c-1.5);
+		glutSolidSphere(0.15,20,20);
 	    glPopMatrix();
 	    
 	    glutPostRedisplay();
@@ -304,54 +393,54 @@
 	    
 	    glPushMatrix();
             glColor3f(0,0.5,0.5);
-            glTranslatef(0.15,-0.1,-1);
-            glutSolidCube(0.35);
-            glScalef(5,1,1);
-        //        glTranslatef(0,0.45,0);
+            glTranslatef(sigurno_x,sigurno_y,sigurno_z);
+//             glScalef(1,0,2   .2);
+            glutSolidCube(1);
 	    glPopMatrix();
 	}
 
-	void inicijalizacija_m_o(){
-	    int i,j;
-	    for(i=0;i<BR_OSTRVA_A;i++){
-		for(j=0;j<BR_OSTRVA_B;j++){
-		    ostrva[i*BR_OSTRVA_B+j].poz=i;
-		        ostrva[i*BR_OSTRVA_B+j].x_c=j;            
-		}
-	    }
-	  
-	}
-	void nacrtaj_manja_ostrva(){
-	    int i;
-	    for(i=0;i<BR_OSTRVA;i++){
-		GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-	     
-		float x=ostrva[i].x_c;
-// 		float d=ostrva[i].d;
-		glPushMatrix();
-		    glTranslatef(-x/2+1.1,0,poz_g*ostrva[i].poz-0.5);
-		    glutSolidCube(0.3);
-		glPopMatrix();        
-		glutPostRedisplay();
-	    }    
-	}
+void nacrtaj_manja_ostrva(){
+     int i,j;
+     for(i=0;i<6;i++){
+         for(j=0;j<6;j++){
+            matrica_ostrva[i][j]=1;
+//             printf("%d ", matrica_ostrva[i][j]);
+         }
+         
+     }
+     
+     for(i=0;i<BR_OSTRVA_A;i++){
+      for(j=0;j<BR_OSTRVA_A;j++){
+          GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+        if(matrica_ostrva[i][j]==1){
+            glPushMatrix();
+                 glTranslatef(-j+0.5+pomeranje_kocke,0,i-0.5);
+                 glutSolidCube(0.3);
+            glPopMatrix();            
+        }
+      }
+     }
+    }
 
 	void postavi_sliku(){
 	 glPushMatrix();   
+       GLfloat diffuse_coeffs[]={0.1,0.1,0.8,0};
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+        
 	    glEnable(GL_TEXTURE_2D);
-		glRotatef(91, 1, 0, 0); 
+        glTranslatef(-3,0,0);
 	   glBegin(GL_QUADS);
 		glBindTexture(GL_TEXTURE_2D,slika_pozadine);
-		glNormal3f(0, 1, 0);
+		glNormal3f(0, 0, 1);
 		    glTexCoord2f(0, 0);
-		    glVertex3f(-5, -17, 0);
+		    glVertex3f(50, 0, 50);
 		    glTexCoord2f(1, 0);
-		    glVertex3f(30, -20, 0);
-		    glTexCoord2f(1, 1);
-		    glVertex3f(50, 20, 0);
-		    glTexCoord2f(0, 1);
-		    glVertex3f(-5, 15, 0);
+		    glVertex3f(-70, 0, 70);
+		    glTexCoord2f(0,1);
+		    glVertex3f(-70, 0, -70);
+		    glTexCoord2f(1,1);
+		    glVertex3f(70, 0, -70);
 		
 	    glEnd();
 
@@ -408,7 +497,7 @@
         vis_c+=0.08;
         pom_linija++;
 //         printf("p1 :%d\n", pom_linija);
-        if(pom_linija==6){
+        if(pom_linija==10){
                 vis_c=0.02;
             pom_linija2++;
             pom_linija=0;
@@ -428,7 +517,7 @@
           resetuj();   
         }
         
-        if(pom_k==5){
+        if(pom_k==10){
                 vis_c=0.02;
                 pom_k2--;
                 pom_k=0;
@@ -447,7 +536,7 @@
         if(pom==0){
          resetuj();   
         }
-        if(pom_k==5){
+        if(pom_k==10){
             vis_c=0.02;
             pom_k2++;
             pom_k=0;
@@ -461,23 +550,24 @@
         }
     }
     void skok_nazad(){
-     vis_c+=0.08;
-     y_c-=0.1;
-     pom_linija++;
-     if(pom==0){
-      resetuj();   
-     }
-     if(pom_linija==6){
-         vis_c=0.02;
-         pom_linija2--;
-         pom_linija=0;
-         animation=0;
-         if(pom_linija2<=0){
-          resetuj();   
-         }
-     }
+        vis_c+=0.08;
+        y_c-=0.1;
+        pom_linija++;
+        if(pom==0){
+        resetuj();   
+        }
+        if(pom_linija==10){
+            vis_c=0.02;
+            pom_linija2--;
+            pom_linija=0;
+            animation=0;
+            if(pom_linija2<=0){
+            resetuj();   
+            }
+        }
         
     }
+    
 	void resetuj(){
 	 x_c=0;
 	 y_c=0;
