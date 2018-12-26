@@ -11,13 +11,16 @@
     #define TIMER_ID 0
     #define TIMER_ID1 1
     #define TIMER_INTERVAL (20)
+//     #define TIMER_INTERVAL2 (70)
 	static int animation=0;
     static int animation2=0;
 //     static int animation_skok=0;
     
     //prikazuje nam koji skok zelimo
     int pomocna_animation=0;
-
+    
+    int timer_interval2=70;
+    
 	//lopta
 	float x_c=0;
 	float y_c=0;
@@ -84,7 +87,7 @@
     static void on_timer2(int value);
 	static void on_reshape(int width, int height);  
 
-	int main (int argc, char ** argv){
+int main (int argc, char ** argv){
 	    
 	   
 	    
@@ -111,7 +114,7 @@
 	    return 0;
 	}
 
-	static void on_keyboard(unsigned char key, int x, int y){
+static void on_keyboard(unsigned char key, int x, int y){
 	    switch(key){
             case 27:
                 exit(0);
@@ -222,28 +225,30 @@
          sigurno_y=-1;   
          
         }   
-         /*
+        //Na svakih 10 sekundi smanjujemo timer_interval2, tj.interval za pomeranje manjih ostrva,
+        //kako bi dobili efekat da se brze krecu.
 	    broj_milisec+=70;
         if(broj_milisec>1000){
          broj_sekundi+=1;
          broj_milisec=0;           
         }
-	    if(broj_sekundi>2){
+	    if(broj_sekundi>10){
          broj_sekundi=0;
-         if(pomeranje_kocke>1.6){
-            pomeranje_kocke=pomeranje_kocke-0.8;
+         timer_interval2-=1;
+         
+        }
+         pomeranje_kocke+=0.01;
+         if(pomeranje_kocke>=1){
+            pomeranje_kocke*=0.0001;
          }
-         else{
-           pomeranje_kocke=pomeranje_kocke+0.8;
-         } */
         glutPostRedisplay();
         if(animation2==1){
-         glutTimerFunc(60,on_timer2,TIMER_ID1);   
+         glutTimerFunc(timer_interval2,on_timer2,TIMER_ID1);   
         }
         
     }
 	
-	static void on_timer(int value){
+static void on_timer(int value){
 	    if(value!=TIMER_ID && value!=TIMER_ID1){
             return;
 	    }
@@ -308,7 +313,7 @@
                 }
         }
 	}
-	static void on_reshape(int width , int height){
+static void on_reshape(int width , int height){
 	 
 	    glViewport(0,0,width, height);
 	    glMatrixMode(GL_PROJECTION);
@@ -319,7 +324,7 @@
 	    glutPostRedisplay();
 	}
 
-	static void on_display(void){
+static void on_display(void){
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	    
 	    GLfloat light_position[]={0.5,1.8,-3,1};
@@ -375,8 +380,7 @@
 	    glutSwapBuffers();
 	}
 
-
-	void nacrtaj_l(){
+void nacrtaj_l(){
 		
 	    glPushMatrix();    
 		glColor3f(1,0,0);
@@ -389,7 +393,7 @@
 	    glutPostRedisplay();
 	}
 
-	void nacrtaj_sigurno_ostrvo(){
+void nacrtaj_sigurno_ostrvo(){
 	    
 	    glPushMatrix();
             glColor3f(0,0.5,0.5);
@@ -408,22 +412,25 @@ void nacrtaj_manja_ostrva(){
          }
          
      }
-     
      for(i=0;i<BR_OSTRVA_A;i++){
       for(j=0;j<BR_OSTRVA_A;j++){
           GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
         glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
         if(matrica_ostrva[i][j]==1){
             glPushMatrix();
+            if(i%2==1){
                  glTranslatef(-j+0.5+pomeranje_kocke,0,i-0.5);
+            }
+            else{
+              glTranslatef(-j+0.5-pomeranje_kocke,0,i-0.5);
+            }
                  glutSolidCube(0.3);
             glPopMatrix();            
         }
       }
      }
-    }
-
-	void postavi_sliku(){
+}
+void postavi_sliku(){
 	 glPushMatrix();   
        GLfloat diffuse_coeffs[]={0.1,0.1,0.8,0};
         glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
@@ -448,7 +455,7 @@ void nacrtaj_manja_ostrva(){
 
 	 glPopMatrix();
 	}
-	void idi_desno(){
+void idi_desno(){
         x_c-=0.1;
 	    if(pom==0){
             if(x_c<-0.3 ){ 
@@ -456,7 +463,7 @@ void nacrtaj_manja_ostrva(){
             }
 	    }
 	}
-	void idi_levo(){
+void idi_levo(){
         x_c+=0.1;   
 	    if(pom==0){
             if(x_c>0.3){
@@ -465,7 +472,7 @@ void nacrtaj_manja_ostrva(){
 	    }
 	    
 	}
-	void idi_napred(){
+void idi_napred(){
         y_c+=0.1;
 	    if(pom==0){
             if(y_c>0.3){
@@ -474,7 +481,7 @@ void nacrtaj_manja_ostrva(){
 	    }
 	    
 	}
-	void idi_nazad(){
+void idi_nazad(){
         y_c-=0.1;
 	    if(pom==0){
             if(y_c<-0.3){
@@ -482,7 +489,7 @@ void nacrtaj_manja_ostrva(){
             }
 	    }
 	}
-	void skok_uvis(){
+void skok_uvis(){
 	    vis_c+=.1;
 //         printf("vis_c : %f\n", vis_c);
         if(vis_c>=0.5){
@@ -491,7 +498,7 @@ void nacrtaj_manja_ostrva(){
         }
         
 	}
-    void skok_napred(){
+void skok_napred(){
         pom++;
         y_c+=0.1;
         vis_c+=0.08;
@@ -507,8 +514,7 @@ void nacrtaj_manja_ostrva(){
             }
         }
      }
-    void skok_levo(){
-
+void skok_levo(){
         vis_c+=0.08;
         x_c+=0.1;
         pom_k++;
@@ -528,7 +534,7 @@ void nacrtaj_manja_ostrva(){
         }
         
     }
-    void skok_desno(){
+void skok_desno(){
         vis_c+=0.08;
         x_c-=0.1;
         pom_k++;
@@ -549,7 +555,7 @@ void nacrtaj_manja_ostrva(){
             }
         }
     }
-    void skok_nazad(){
+void skok_nazad(){
         vis_c+=0.08;
         y_c-=0.1;
         pom_linija++;
@@ -566,10 +572,10 @@ void nacrtaj_manja_ostrva(){
             }
         }
         
-    }
+}
     
-	void resetuj(){
-	 x_c=0;
+void resetuj(){
+     x_c=0;
 	 y_c=0;
      vis_c=0;
      pom=0;
@@ -578,4 +584,4 @@ void nacrtaj_manja_ostrva(){
      pom_linija=0;
      pom_linija2=0;
  	 printf("Kraj, resetovano\n");
-	}
+}
