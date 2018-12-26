@@ -21,14 +21,11 @@
     
     int timer_interval2=70;
     
-	//lopta
-	float x_c=0;
-	float y_c=0;
-	float vis_c=0;
-	float s=0.15;
-	float w=20;
-	float h=20;
-
+	//pocetne pozicije lopte
+	float lopta_x=0;
+	float lopta_z=0;
+	float lopta_y=0;
+	
     //Pocetne pozicije sigurnog ostrva
     float sigurno_x=-1.5;
     float sigurno_y=-.35;
@@ -50,9 +47,8 @@
     int broj_milisec=0;
     int broj_sekundi=0;
     
-	float x_sig=0;
-	float y_sig=0;
 
+    //matrica pomocu koje iscrtavamo manja ostrva
     int matrica_ostrva[BR_OSTRVA_A][BR_OSTRVA_A];
     
     
@@ -62,17 +58,17 @@
 
 	void nacrtaj_l();
 	void nacrtaj_sigurno_ostrvo();
-	void inicijalizacija_m_o();
+// 	void inicijalizacija_m_o();
 	void nacrtaj_manja_ostrva();
 
 
+    
 	void idi_desno();
 	void idi_levo();
-    void skok_desno();
-                
-    
-	void idi_napred();
+    void idi_napred();
 	void idi_nazad();
+    
+    void skok_desno();
 	void skok_uvis();
     void skok_napred();
     void skok_levo();
@@ -123,36 +119,45 @@ static void on_keyboard(unsigned char key, int x, int y){
             case 'o':
                 if(!animation2){
                     animation2=1;
-                    glutTimerFunc(60,on_timer2,TIMER_ID1);
+                    glutTimerFunc(timer_interval2,on_timer2,TIMER_ID1);
                 }
                 break;
+            //PAUZA!!!!!!!!!!!
             case 'p':
                 if(animation2==1){
                  animation2=0;   
                 }
                 break;
+            //pomeranje levo --> idi_desno
             case 'l':
                 if(animation2==1){
                     idi_desno();
                 }
                 break;
+            
+            //pomeranje levo --> idi_levo
             case 'j':
                 if(animation2==1){
                     idi_levo();
                 }
                 break;
+                
+            //pomeranje levo --> idi_napred
             case 'i':
                 if(animation2==1){
                     idi_napred();
                 }
                 break;
+                
+            //pomeranje levo --> idi_nazad
             case 'm':
                 if(animation2==1){
                     idi_nazad();
                 }
                 break;
+                
+            // skok_uvis();
             case 's':
-//                skok_uvis();
                 if(animation2==1){
                     if(animation==0){
                         animation=1;
@@ -161,8 +166,9 @@ static void on_keyboard(unsigned char key, int x, int y){
                     }
                 }
                 break;
+        
+            //skok_napred();
             case 'w':
-//              skok_napred();
                  if(animation2==1){
                     if(animation==0){
                         pomocna_animation=2;
@@ -172,8 +178,8 @@ static void on_keyboard(unsigned char key, int x, int y){
                  }
                 
                 break;
+            //skok_levo();
             case 'a':
-//                 skok_levo();
                  if(animation2==1){
                     if(!animation){
                         pomocna_animation=3;
@@ -182,8 +188,8 @@ static void on_keyboard(unsigned char key, int x, int y){
                     }
                  }
                 break;
+            //skok_desno();
             case 'd':
-                skok_desno();
                  if(animation2==1){
                     if(!animation){
                         pomocna_animation=4;
@@ -193,8 +199,8 @@ static void on_keyboard(unsigned char key, int x, int y){
                     }
                  }
                 break;
+            //skok_nazad();
             case 'x':
-//                 skok_nazad();
                  if(animation2==1){
                     if(!animation){
                         pomocna_animation=5;
@@ -202,16 +208,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                         glutTimerFunc(20,on_timer,TIMER_ID);
                     }
                  }
-                break;            
-            case 'q':
-                 if(animation2==1){
-                    if(!animation){
-                        pomocna_animation=6;
-                        animation=1;
-                        glutTimerFunc(20,on_timer,TIMER_ID);
-                    }
-                 }
-                break;
+                break;  
                 
         }
 	    
@@ -225,8 +222,8 @@ static void on_keyboard(unsigned char key, int x, int y){
          sigurno_y=-1;   
          
         }   
-        //Na svakih 10 sekundi smanjujemo timer_interval2, tj.interval za pomeranje manjih ostrva,
-        //kako bi dobili efekat da se brze krecu.
+        /*Na svakih 10 sekundi smanjujemo timer_interval2, tj.interval za pomeranje manjih ostrva,
+        kako bi dobili efekat da se brze krecu. */
 	    broj_milisec+=70;
         if(broj_milisec>1000){
          broj_sekundi+=1;
@@ -234,13 +231,14 @@ static void on_keyboard(unsigned char key, int x, int y){
         }
 	    if(broj_sekundi>10){
          broj_sekundi=0;
-         timer_interval2-=1;
-         
+         timer_interval2-=1;         
         }
-         pomeranje_kocke+=0.01;
-         if(pomeranje_kocke>=1){
+        
+        pomeranje_kocke+=0.01;
+        if(pomeranje_kocke>=1){
             pomeranje_kocke*=0.0001;
-         }
+        }
+        
         glutPostRedisplay();
         if(animation2==1){
          glutTimerFunc(timer_interval2,on_timer2,TIMER_ID1);   
@@ -253,22 +251,7 @@ static void on_timer(int value){
             return;
 	    }
 	    
-	    
-        /*
-	    broj_milisec+=70;
-        if(broj_milisec>1000){
-         broj_sekundi+=1;
-         broj_milisec=0;           
-        }
-	    if(broj_sekundi>2){
-         broj_sekundi=0;
-         if(pomeranje_kocke>1.6){
-            pomeranje_kocke=pomeranje_kocke-0.8;
-         }
-         else{
-           pomeranje_kocke=pomeranje_kocke+0.8;
-         } */
-        switch(pomocna_animation){
+	    switch(pomocna_animation){
             case 1:
                 skok_uvis();
                 glutPostRedisplay();
@@ -363,7 +346,6 @@ static void on_display(void){
 	    glMatrixMode(GL_MODELVIEW);
 	    glLoadIdentity();
 	    
-	    //glScalef(1,1,1);
         //slika pozadine
          postavi_sliku();
 	    //sigurno ostrvo
@@ -374,31 +356,29 @@ static void on_display(void){
 	   
 	    //manja ostrva
  	    nacrtaj_manja_ostrva();
-        
 	    
  	    glFlush();
 	    glutSwapBuffers();
 	}
-
+//Funkcija za crtanje lopte.
 void nacrtaj_l(){
 		
 	    glPushMatrix();    
 		glColor3f(1,0,0);
 		GLfloat  diffuse_coeffs[]={0.9,0.1,0.1,1};
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-		glTranslatef(x_c-1.5,vis_c+0.2,y_c-1.5);
+		glTranslatef(lopta_x-1.5,lopta_y+0.2,lopta_z-1.5);
 		glutSolidSphere(0.15,20,20);
 	    glPopMatrix();
 	    
 	    glutPostRedisplay();
 	}
-
+//Funkcija za crtanje veceg ostrva
 void nacrtaj_sigurno_ostrvo(){
 	    
 	    glPushMatrix();
             glColor3f(0,0.5,0.5);
             glTranslatef(sigurno_x,sigurno_y,sigurno_z);
-//             glScalef(1,0,2   .2);
             glutSolidCube(1);
 	    glPopMatrix();
 	}
@@ -410,7 +390,6 @@ void nacrtaj_manja_ostrva(){
             matrica_ostrva[i][j]=1;
 //             printf("%d ", matrica_ostrva[i][j]);
          }
-         
      }
      for(i=0;i<BR_OSTRVA_A;i++){
       for(j=0;j<BR_OSTRVA_A;j++){
@@ -456,56 +435,77 @@ void postavi_sliku(){
 	 glPopMatrix();
 	}
 void idi_desno(){
-        x_c-=0.1;
+        lopta_x-=0.1;
 	    if(pom==0){
-            if(x_c<-0.3 ){ 
+            
+            printf("%.2f\n",sigurno_y);
+            if(sigurno_y<=-.49){
+              printf("Potonuo");
+              resetuj();
+            }             
+            if(lopta_x<=-.6){ 
                 resetuj();
             }
 	    }
 	}
 void idi_levo(){
-        x_c+=0.1;   
+        lopta_x+=0.1;   
 	    if(pom==0){
-            if(x_c>0.3){
+            
+            printf("%.2f\n",sigurno_y);
+            if(sigurno_y<=-.49){
+              printf("Potonuo");
+             resetuj();
+            }            
+            if(lopta_x>=0.6){
                 resetuj();
             }
 	    }
-	    
 	}
 void idi_napred(){
-        y_c+=0.1;
+        lopta_z+=0.1;
 	    if(pom==0){
-            if(y_c>0.3){
+            if(sigurno_y<=-.49){
+              printf("Potonuo");
+             resetuj();
+            }
+            if(lopta_z>=0.6){
                 resetuj();
             }
 	    }
 	    
 	}
 void idi_nazad(){
-        y_c-=0.1;
+        lopta_z-=0.1;
 	    if(pom==0){
-            if(y_c<-0.3){
+            
+            printf("%.2f\n",sigurno_y);
+            if(sigurno_y<=-.49){
+              printf("Potonuo");
+             resetuj();
+            }
+            if(lopta_z<-0.6){
                 resetuj();
             }
 	    }
 	}
 void skok_uvis(){
-	    vis_c+=.1;
-//         printf("vis_c : %f\n", vis_c);
-        if(vis_c>=0.5){
-         vis_c=0.02;
+	    lopta_y+=.1;
+//         printf("lopta_y : %f\n", lopta_y);
+        if(lopta_y>=0.5){
+         lopta_y=0.02;
          animation=0;
         }
         
 	}
 void skok_napred(){
         pom++;
-        y_c+=0.1;
-        vis_c+=0.08;
+        lopta_z+=0.1;
+        lopta_y+=0.08;
         pom_linija++;
 //         printf("p1 :%d\n", pom_linija);
         if(pom_linija==10){
-                vis_c=0.02;
+                lopta_y=0.02;
             pom_linija2++;
             pom_linija=0;
             animation=0;
@@ -515,8 +515,8 @@ void skok_napred(){
         }
      }
 void skok_levo(){
-        vis_c+=0.08;
-        x_c+=0.1;
+        lopta_y+=0.08;
+        lopta_x+=0.1;
         pom_k++;
         //ako pokusamo da skocimo sa sigurnog ostrva ulevo 
         if(pom==0){ 
@@ -524,7 +524,7 @@ void skok_levo(){
         }
         
         if(pom_k==10){
-                vis_c=0.02;
+                lopta_y=0.02;
                 pom_k2--;
                 pom_k=0;
                 animation=0;
@@ -535,15 +535,15 @@ void skok_levo(){
         
     }
 void skok_desno(){
-        vis_c+=0.08;
-        x_c-=0.1;
+        lopta_y+=0.08;
+        lopta_x-=0.1;
         pom_k++;
         //ako pokusamo da skocimo sa sigurnog ostrva udesno 
         if(pom==0){
          resetuj();   
         }
         if(pom_k==10){
-            vis_c=0.02;
+            lopta_y=0.02;
             pom_k2++;
             pom_k=0;
   /*            printf("k: %d\n", pom_k);
@@ -556,14 +556,14 @@ void skok_desno(){
         }
     }
 void skok_nazad(){
-        vis_c+=0.08;
-        y_c-=0.1;
+        lopta_y+=0.08;
+        lopta_z-=0.1;
         pom_linija++;
         if(pom==0){
         resetuj();   
         }
         if(pom_linija==10){
-            vis_c=0.02;
+            lopta_y=0.02;
             pom_linija2--;
             pom_linija=0;
             animation=0;
@@ -571,13 +571,12 @@ void skok_nazad(){
             resetuj();   
             }
         }
-        
 }
     
 void resetuj(){
-     x_c=0;
-	 y_c=0;
-     vis_c=0;
+     lopta_x=0;
+	 lopta_z=0;
+     lopta_y=0;
      pom=0;
      pom_k=0;
      pom_k2=3;
