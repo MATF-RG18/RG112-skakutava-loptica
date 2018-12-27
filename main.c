@@ -1,114 +1,113 @@
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <GL/glut.h>
-	#include <time.h>
-	#include <string.h>
-    #include <math.h>
-	#include "SOIL.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <GL/glut.h>
+#include <time.h>
+#include <string.h>
+#include <math.h>
+#include "SOIL.h"
 
 
-	#define BR_OSTRVA_A 6
-    #define TIMER_ID 0
-    #define TIMER_ID1 1
-    #define TIMER_INTERVAL (20)
-//     #define TIMER_INTERVAL2 (70)
-	static int animation=0;
-    static int animation2=0;
-//     static int animation_skok=0;
+#define BR_OSTRVA_A 6
+#define TIMER_ID 0
+#define TIMER_ID1 1
+#define TIMER_INTERVAL (20)
+
+/*Animacijski parametri za pokretanje animacija: */
+static int animation=0;
+static int animation2=0;
     
-    //prikazuje nam koji skok zelimo
-    int pomocna_animation=0;
+/* prikazuje nam koji skok zelimo */
+int pomocna_animation=0;
+
+/* interval za on_timer2 */
+int timer_interval2=70;
     
-    int timer_interval2=70;
-    
-	//pocetne pozicije lopte
-	float lopta_x=0;
-	float lopta_z=0;
-	float lopta_y=0;
+/* pocetne pozicije lopte */
+float lopta_x=0;
+float lopta_z=0;
+float lopta_y=0;
 	
-    //Pocetne pozicije sigurnog ostrva
-    float sigurno_x=-1.5;
-    float sigurno_y=-.35;
-    float sigurno_z=-1.5;
+/* Pocetne pozicije sigurnog ostrva*/
+float sigurno_x=-1.5;
+float sigurno_y=-.35;
+float sigurno_z=-1.5;
     
-	int pom=0;
-    int pom_linija=0;
+int pom=0;
+int pom_linija=0;
     
-    //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (i)
-    int pom_linija2=0;
+/* pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (i) */
+int pom_linija2=0;
 
-    int pom_k=0;
+int pom_k=0;
+  
+/* pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j) */
+int pom_k2=3;
     
-    //pomocna koja nam prikazuje broj trenutne linije manjeg ostrva (j)
-    int pom_k2=3;
-    
-    
-    float pomeranje_kocke=0;
-    int broj_milisec=0;
-    int broj_sekundi=0;
+/* promenljiva za pomeranje manjih ostrva */
+float pomeranje_kocke=0;
+/* promenljive za racunanje sekundi */
+int broj_milisec=0;
+int broj_sekundi=0;
     
 
-    //matrica pomocu koje iscrtavamo manja ostrva
-    int matrica_ostrva[BR_OSTRVA_A][BR_OSTRVA_A];
+/* matrica pomocu koje iscrtavamo manja ostrva */
+int matrica_ostrva[BR_OSTRVA_A][BR_OSTRVA_A];
     
     
-	GLuint slika_pozadine;
+GLuint slika_pozadine;
 
-    void postavi_sliku();
+void postavi_sliku();
 
-	void nacrtaj_l();
-	void nacrtaj_sigurno_ostrvo();
-// 	void inicijalizacija_m_o();
-	void nacrtaj_manja_ostrva();
+void nacrtaj_l();
+void nacrtaj_sigurno_ostrvo();
+void nacrtaj_manja_ostrva();
 
-
+/*funkcije za kretanje levo/desno/napred/nazad */
+void idi_desno();
+void idi_levo();
+void idi_napred();
+void idi_nazad();
     
-	void idi_desno();
-	void idi_levo();
-    void idi_napred();
-	void idi_nazad();
-    
-    void skok_desno();
-	void skok_uvis();
-    void skok_napred();
-    void skok_levo();
-    void skok_nazad();
+/*funkcije za skokove */
+void skok_desno();
+void skok_uvis();
+void skok_napred();
+void skok_levo();
+void skok_nazad();
        
-    void resetuj();
+void resetuj();
 
-
-	static void on_keyboard(unsigned char key,int x,int y);
-	static void on_display(void);
-	static void on_timer(int value);
-    static void on_timer2(int value);
-	static void on_reshape(int width, int height);  
+    
+static void on_keyboard(unsigned char key,int x,int y);
+static void on_display(void);
+static void on_timer(int value);
+static void on_timer2(int value);
+static void on_reshape(int width, int height);  
 
 int main (int argc, char ** argv){
 	    
-	   
+    /* inicijalizacija   */
+    glutInit(&argc, argv);
+	glutInitWindowSize(700,700);
+	glutInitWindowPosition(100,100);
+	glutCreateWindow("Skakutava loptica");
+	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 	    
-	    glutInit(&argc, argv);
-	    glutInitWindowSize(700,700);
-	    glutInitWindowPosition(100,100);
-	    glutCreateWindow("Skakutava loptica");
-	    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-	    
-	    glClearColor(0.1,0.1,0.2,0);
-	    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 	 
-	    glutKeyboardFunc(on_keyboard);
-	    glutReshapeFunc(on_reshape);
-	    glutDisplayFunc(on_display);
+    glutKeyboardFunc(on_keyboard);
+    glutReshapeFunc(on_reshape);
+    glutDisplayFunc(on_display);
 	 
-	    slika_pozadine=SOIL_load_OGL_texture("sea.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
-	    if(slika_pozadine==0){
-	     printf("Nije ucitana slika\n");   
-	    }
+    slika_pozadine=SOIL_load_OGL_texture("sea.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+    if(slika_pozadine==0){
+        printf("Nije ucitana slika\n");  
+    }
+    glClearColor(0.1,0.1,0.2,0);
       
-	    glutMainLoop();
-	    
-	    return 0;
-	}
+    glutMainLoop();
+	return 0;
+}
 
 static void on_keyboard(unsigned char key, int x, int y){
 	    switch(key){
@@ -212,8 +211,8 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
         }
 	    
-	}
-	static void on_timer2(int value){
+}
+static void on_timer2(int value){
         if(value!=TIMER_ID1)
             return;
         
@@ -229,6 +228,7 @@ static void on_keyboard(unsigned char key, int x, int y){
          broj_sekundi+=1;
          broj_milisec=0;           
         }
+        //ako je proslo 10 sekundi smanjujemo timer_interval2 za 1 i ponovo pocinje brojanje sekundi
 	    if(broj_sekundi>10){
          broj_sekundi=0;
          timer_interval2-=1;         
@@ -247,10 +247,10 @@ static void on_keyboard(unsigned char key, int x, int y){
     }
 	
 static void on_timer(int value){
-	    if(value!=TIMER_ID && value!=TIMER_ID1){
+	    if(value!=TIMER_ID){
             return;
 	    }
-	    
+	    //Zavisno od slova koje smo pritisnuli je pomocna_animation postavljena na odredjenu vrednost. Pomocu nje mozemo izvrsiti zeljenu funkciju.
 	    switch(pomocna_animation){
             case 1:
                 skok_uvis();
@@ -295,7 +295,8 @@ static void on_timer(int value){
                     glutTimerFunc(TIMER_INTERVAL,on_timer,TIMER_ID);   
                 }
         }
-	}
+}
+/*funkcija za postavljanje glViewport-a i perspektive */
 static void on_reshape(int width , int height){
 	 
 	    glViewport(0,0,width, height);
@@ -305,39 +306,41 @@ static void on_reshape(int width , int height){
 	    
 	    gluPerspective(60,(float)width/(float)height,1,1000);
 	    glutPostRedisplay();
-	}
+}
+
 
 static void on_display(void){
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    
+
+        
+        /*Koeficijenti za osvetljenje: pozicija svetla, ambientalno, difuzno i spekularno */
 	    GLfloat light_position[]={0.5,1.8,-3,1};
-	    
 	    GLfloat light_ambient[]={0.2,0.3,0.1,1};
 	    GLfloat light_diffuse[]={0.5,0.6,0.8,1};
 	    GLfloat light_specular[]={0.6,0.8,0.9,1};
 	    
-	    
+	    /*Ukljucivanje svetla: */
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
-	    
+	    /*Postavljanje svetla: */
 	    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 	    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 	    
+        /*Koeficijenti za materijale: */
 	    GLfloat ambient_coeffs[]={0.4,0.2,0.3,1};
 	    GLfloat specular_coeffs[]={0.6,0.7,0.6,1};
 	    GLfloat diffuse_coeffs[]={0.9,0.8,0.9,1};
 	    GLfloat shininess=70;
 	    
+        /*Postavljanje materijala: */
 	    glMaterialfv(GL_FRONT,GL_AMBIENT, ambient_coeffs);
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
 	    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
 	    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 	    
-	    
-	    
-	    
+	    /*Postavljanje kamere: */
 	    gluLookAt(-1,4,-5,
                    -2,1,1,
                    0,1,0);
@@ -348,32 +351,34 @@ static void on_display(void){
 	    
         //slika pozadine
          postavi_sliku();
-	    //sigurno ostrvo
+	    /*Funkcija za crtanje veceg ostrva. */
 	    nacrtaj_sigurno_ostrvo();
 	    
-	    // loptica
+	    /*Funkcija za crtanje lopte*/
 	    nacrtaj_l();
 	   
-	    //manja ostrva
+	    /*Funkcija za crtanje manjeg ostrva: */
  	    nacrtaj_manja_ostrva();
-	    
- 	    glFlush();
+	            
 	    glutSwapBuffers();
 	}
-//Funkcija za crtanje lopte.
+	
+/*Funkcija za crtanje lopte. */
 void nacrtaj_l(){
 		
 	    glPushMatrix();    
-		glColor3f(1,0,0);
-		GLfloat  diffuse_coeffs[]={0.9,0.1,0.1,1};
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-		glTranslatef(lopta_x-1.5,lopta_y+0.2,lopta_z-1.5);
-		glutSolidSphere(0.15,20,20);
+            glColor3f(1,0,0);
+            /*Postavljanje difuznog materijala crvene boje*/
+            GLfloat  diffuse_coeffs[]={0.9,0.1,0.1,1};
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+            
+            glTranslatef(lopta_x-1.5,lopta_y+0.2,lopta_z-1.5);
+            glutSolidSphere(0.15,20,20);
 	    glPopMatrix();
 	    
-	    glutPostRedisplay();
 	}
-//Funkcija za crtanje veceg ostrva
+
+/* Funkcija za crtanje veceg ostrva. */
 void nacrtaj_sigurno_ostrvo(){
 	    
 	    glPushMatrix();
@@ -385,30 +390,35 @@ void nacrtaj_sigurno_ostrvo(){
 
 void nacrtaj_manja_ostrva(){
      int i,j;
+     /*Popunjavamo matrica 6x6 jedinicama, kako bi mogli lepo da postavimo ostrva: */
      for(i=0;i<6;i++){
          for(j=0;j<6;j++){
             matrica_ostrva[i][j]=1;
-//             printf("%d ", matrica_ostrva[i][j]);
          }
      }
      for(i=0;i<BR_OSTRVA_A;i++){
       for(j=0;j<BR_OSTRVA_A;j++){
+          /*Postavljamo difuzni materijal za ostrva: */
           GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
-        glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-        if(matrica_ostrva[i][j]==1){
-            glPushMatrix();
-            if(i%2==1){
-                 glTranslatef(-j+0.5+pomeranje_kocke,0,i-0.5);
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+            /* */
+            if(matrica_ostrva[i][j]==1){
+            /*Na mestima gde smo postavili jedinice u matrici postavljamo ostrva. */
+                glPushMatrix();
+                /*Svaki drugi red ide u istu stranu: */
+                    if(i%2==1){
+                        glTranslatef(-j+0.5+pomeranje_kocke,0,i-0.5);
+                    }
+                    else{
+                        glTranslatef(-j+0.5-pomeranje_kocke,0,i-0.5);
+                    }
+                    glutSolidCube(0.3);
+                glPopMatrix();            
             }
-            else{
-              glTranslatef(-j+0.5-pomeranje_kocke,0,i-0.5);
-            }
-                 glutSolidCube(0.3);
-            glPopMatrix();            
-        }
       }
      }
 }
+/*Funkcija za postavanje slike.*/
 void postavi_sliku(){
 	 glPushMatrix();   
        GLfloat diffuse_coeffs[]={0.1,0.1,0.8,0};
@@ -434,6 +444,7 @@ void postavi_sliku(){
 
 	 glPopMatrix();
 	}
+
 void idi_desno(){
         lopta_x-=0.1;
 	    if(pom==0){
