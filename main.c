@@ -244,7 +244,6 @@ static void on_timer2(int value){
          broj_sekundi+=1;
          broj_milisec=0;           
         }
-//         printf("BRoj broj_milisec : %d\n", broj_milisec);
         //ako je proslo 10 sekundi smanjujemo timer_interval2 za 1 i ponovo pocinje brojanje sekundi
 	    if(broj_sekundi>10){
          broj_sekundi=0;
@@ -254,7 +253,6 @@ static void on_timer2(int value){
         
         pomeranje_kocke+=0.01;
         if(pomeranje_kocke>=1){
-//             pomeranje_kocke*=0.0001;
             pomeranje_kocke=1;
             pomeranje_kocke2+=0.01;
             if(pomeranje_kocke2>=1){
@@ -376,11 +374,11 @@ static void on_display(void){
 	    glLoadIdentity();
 	  
         //inicijalizacija teksture
-         initializeTexture();
+          initializeTexture();
 
         /* pod  za teksture*/
         glPushMatrix();
-             texture_pod(loptica_texture);   	
+              texture_pod(loptica_texture);   	
         glPopMatrix();	
 	
         
@@ -439,7 +437,7 @@ void nacrtaj_manja_ostrva(){
                 glPushMatrix();
                 /*Svaki drugi red ide u istu stranu: */
                     if(i%2==1){
-                        /*cuvamo x i y koordinate */
+                        /*cuvamo x i z koordinate */
                         matrica_ostrva_x[i][j]=-j+0.5+pomeranje_kocke-pomeranje_kocke2;
                         matrica_ostrva_y[i][j]=i-0.5;
                         glTranslatef(-j+0.5+pomeranje_kocke-pomeranje_kocke2,0,i-0.5);
@@ -539,53 +537,35 @@ void skok_napred(){
             int j; 
             int alive1=0;
             int alive=0;
-              printf("%d. \n", pom_linija2);   
+//               printf("%d. \n", pom_linija2);   
             if(pom_linija2%2==1){
                 for(j=0;j<BR_OSTRVA;j++){
-      /*     
-                printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke);
-                    printf("L: %.2f \n", lopta_x-1.5);
-                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-lopta_x+1.5);
-        */           
-                    if(matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-(lopta_x-1.5)>=-.2 && matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-(lopta_x-1.5)<=.2){
-//                         printf("ZIVOT");
+
+                    if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) || 
+                        (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                         pomocna_j=j;
-                     alive1++;   
-    /*                printf("ALIVE1: %d\n\n", alive1);
-                    printf("==========\n");
-    */                }
+                        alive1++;   
+                   }
                 }
-//                 printf("%d \n", alive1);
                 if(alive1==0){
-//                  printf("reset alive1\n");   
-                 resetuj();
+//                    printf("reset alive1\n");   
+                  resetuj();
                 }
                 alive1=0;
             }
             else{
-                for (j=0;j<5;j++){
-       /*
-                    printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke);
-                    printf("L: %.2f \n", lopta_x-1.5);
-                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-lopta_x+1.5);
-         */          
-                  if((matrica_ostrva_x[pom_linija2-1][j]+znak*pomeranje_kocke-(lopta_x-1.5))>=-.2 && (matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-(lopta_x-1.5))<=.2){
+                for (j=0;j<BR_OSTRVA;j++){
+         if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) |(matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                       pomocna_j=j;
                      alive++;   
-//                     printf("ALIVE2: %d\n", alive);
                     }
                 }
-                printf("%d \n", alive);
                 if(alive==0){
                     resetuj();
-//                  printf("reset alive2\n");   
                 }
                 alive=0;
             }
-            printf("pom_j %d \n", pomocna_j);
-            /* ponovo postavljamo alive i alive1 na 0, za sledeci prolazak */
-//                  alive=0;alive1=0;
-        
+//             printf("pom_j %d \n", pomocna_j);
         }
 }
 void skok_levo(){
@@ -714,51 +694,33 @@ void skok_nazad(){
              int j; 
             int alive1=0;
             int alive=0;
-              printf("%d. \n", pom_linija2);   
+//               printf("%d. \n", pom_linija2);   
             if(pom_linija2%2==1){
                 for(j=0;j<BR_OSTRVA;j++){
-     /*               printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke);
-                    printf("L: %.2f \n", lopta_x-1.5);
-                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-lopta_x+1.5);
-       */            
-                    if(matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-(lopta_x-1.5)>=-.1 && matrica_ostrva_x[pom_linija2-1][j]+znak*pomeranje_kocke-(lopta_x-1.5)<=.1){
-//                         printf("ZIVOT");
+                    if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                      alive1++;   
                      pomocna_j=j;
-    /*                printf("ALIVE1: %d\n\n", alive1);
-                    printf("==========\n");
-    */                }
+
+                 }
                 }
-//                 printf("%d \n", alive1);
                 if(alive1==0){
                     resetuj();
-                 printf(" alive1 reset\n");   
+//                  printf(" alive1 reset\n");   
                 }
                 alive1=0;
             }
              else{
                 for (j=0;j<5;j++){
-       /*           printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke);
-                    printf("L: %.2f \n", lopta_x-1.5);
-                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-lopta_x+1.5);
-         */          
-                  if((matrica_ostrva_x[pom_linija2-1][j]+znak*pomeranje_kocke-(lopta_x-1.5))>=-.1 && (matrica_ostrva_x[pom_linija2-1][j]-znak*pomeranje_kocke-(lopta_x-1.5))<=.2){
+                  if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                      alive++;   
                      pomocna_j=j;
-//                     printf("ALIVE2: %d\n", alive);
                     }
                 }
-//                 printf("%d \n", alive);
                 if(alive==0){
                     resetuj();
-                 printf("reset alive2\n");   
                 }
                 alive=0;
             }
-                 printf("pom_j %d \n", pomocna_j);
-       
-            //resetujemo alive i alive1 za sledeci prolazak
-//                  alive=0;alive1=0;
         }
 }
     
