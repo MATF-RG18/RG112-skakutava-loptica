@@ -361,12 +361,12 @@ static void on_display(void){
 	    glLoadIdentity();
 	  
         //inicijalizacija teksture
-        initializeTexture();
+          initializeTexture();
 
         
         /* pod  za teksture*/
         glPushMatrix();
-            texture_pod(loptica_texture);   	
+             texture_pod(loptica_texture);   	
         glPopMatrix();	
 	
         
@@ -378,9 +378,7 @@ static void on_display(void){
 	   
 	    /*Funkcija za crtanje manjeg ostrva: */
  	    nacrtaj_manja_ostrva();
-	            
-        
-        
+            
 	    glutSwapBuffers();
 	}
 	
@@ -404,6 +402,9 @@ void nacrtaj_sigurno_ostrvo(){
 	    
 	    glPushMatrix();
 //             glColor3f(0,0.5,0.5);
+            GLfloat  diffuse_coeffs[]={0.2,0.2,0.9,1};
+            glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+         
             glTranslatef(sigurno_x,sigurno_y,sigurno_z);
             glutSolidCube(1);
 	    glPopMatrix();
@@ -420,7 +421,7 @@ void nacrtaj_manja_ostrva(){
      for(i=0;i<BR_OSTRVA;i++){
       for(j=0;j<BR_OSTRVA;j++){
           /*Postavljamo difuzni materijal za ostrva: */
-          GLfloat diffuse_coeffs[]={0.7,0.7,0.1,1};
+            GLfloat diffuse_coeffs[]={0.4,0.4,0.2,1};
             glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
             if(matrica_ostrva[i][j]==1){
             /*Na mestima gde smo postavili jedinice u matrici postavljamo ostrva. */
@@ -516,6 +517,7 @@ void skok_napred(){
         pom_duzina_skoka++;
         if(pom_duzina_skoka==10){
                 lopta_y=0.02;
+            //promenljiva koja nam pokazuje na kom smo i po redu od ostrva, broji od 1 i povecava se za jedan svaki put pri skoku napred 
             pom_linija2++;
             pom_duzina_skoka=0;
             //iskljucujemo animaciju za skok;
@@ -523,8 +525,53 @@ void skok_napred(){
             if(pom_linija2>=7){
              resetuj();   
             }
+            int j; 
+            int alive1=0;
+            int alive=0;
+              printf("%d. \n", pom_linija2);   
+            if(pom_linija2%2==1){
+                for(j=0;j<BR_OSTRVA;j++){
+                    printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke);
+                    printf("L: %.2f \n", lopta_x-1.5);
+                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-lopta_x+1.5);
+                   
+                    if(matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5)>=-.2 && matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5)<=.2){
+                        printf("ZIVOT");
+                     alive1++;   
+    /*                printf("ALIVE1: %d\n\n", alive1);
+                    printf("==========\n");
+    */                }
+                }
+                printf("%d \n", alive1);
+                if(alive1==0){
+                 printf("UMROO alive1\n");   
+                 resetuj();
+                }
+                alive1=0;
+            }
+            else{
+                for (j=0;j<5;j++){
+                  printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke);
+                    printf("L: %.2f \n", lopta_x-1.5);
+                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-lopta_x+1.5);
+                   
+                  if((matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-(lopta_x-1.5))>=-.2 && (matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5))<=.2){
+                     alive++;   
+//                     printf("ALIVE2: %d\n", alive);
+                    }
+                }
+                printf("%d \n", alive);
+                if(alive==0){
+                    resetuj();
+                 printf("UMRO alive2\n");   
+                }
+                alive=0;
+            }
+            /* ponovo postavljamo alive i alive1 na 0, za sledeci prolazak */
+//                  alive=0;alive1=0;
+        
         }
-     }
+}
 void skok_levo(){
         lopta_y+=0.08;
         lopta_x+=0.1;
@@ -581,12 +628,57 @@ void skok_nazad(){
         }
         if(pom_duzina_skoka==10){
             lopta_y=0.02;
+            //pomocna koja nam pomaze da odredimo na kom smo i od pocetnog- velikog ostrva, kada se vracamo unazad kad pocetnoj poziciji, ona se smanjuje za 1
             pom_linija2--;
             pom_duzina_skoka=0;
             animation=0;
             if(pom_linija2<=0){
                 resetuj();   
             }
+             int j; 
+            int alive1=0;
+            int alive=0;
+              printf("%d. \n", pom_linija2);   
+            if(pom_linija2%2==1){
+                for(j=0;j<BR_OSTRVA;j++){
+/*                    printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke);
+                    printf("L: %.2f \n", lopta_x-1.5);
+                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-lopta_x+1.5);
+  */                 
+                    if(matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5)>=-.2 && matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5)<=.2){
+//                         printf("ZIVOT");
+                     alive1++;   
+    /*                printf("ALIVE1: %d\n\n", alive1);
+                    printf("==========\n");
+    */                }
+                }
+//                 printf("%d \n", alive1);
+                if(alive1==0){
+                    resetuj();
+                 printf(" alive1 reset\n");   
+                }
+                alive1=0;
+            }
+             else{
+                for (j=0;j<5;j++){
+       /*           printf("K : %.2f \n",matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke);
+                    printf("L: %.2f \n", lopta_x-1.5);
+                    printf("pom: %.2f\n", matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-lopta_x+1.5);
+         */          
+                  if((matrica_ostrva_x[pom_linija2-1][j]+pomeranje_kocke-(lopta_x-1.5))>=-.2 && (matrica_ostrva_x[pom_linija2-1][j]-pomeranje_kocke-(lopta_x-1.5))<=.2){
+                     alive++;   
+//                     printf("ALIVE2: %d\n", alive);
+                    }
+                }
+//                 printf("%d \n", alive);
+                if(alive==0){
+                    resetuj();
+                 printf("reset alive2\n");   
+                }
+                alive=0;
+            }
+            //resetujemo alive i alive1 za sledeci prolazak
+//                  alive=0;alive1=0;
         }
 }
     
