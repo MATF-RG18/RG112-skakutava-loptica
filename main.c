@@ -374,7 +374,7 @@ static void on_display(void){
 	    glLoadIdentity();
 	  
         //inicijalizacija teksture
-          initializeTexture();
+        initializeTexture();
 
         /* pod  za teksture*/
         glPushMatrix();
@@ -525,9 +525,10 @@ void skok_napred(){
         //pomocna koja nam pomaza da odredimo duzinu skoka, kada postane 10 treba da se prekine animacija skoka
         pom_duzina_skoka++;
         if(pom_duzina_skoka==10){
-                lopta_y=0.02;
+            lopta_y=0.02;
             //promenljiva koja nam pokazuje na kom smo i po redu od ostrva, broji od 1 i povecava se za jedan svaki put pri skoku napred 
             pom_linija2++;
+            /*duzina skoka nam ponovo postaje 0, zbog sledeceg. */
             pom_duzina_skoka=0;
             //iskljucujemo animaciju za skok;
             animation=0;
@@ -537,7 +538,6 @@ void skok_napred(){
             int j; 
             int alive1=0;
             int alive=0;
-//               printf("%d. \n", pom_linija2);   
             if(pom_linija2%2==1){
                 for(j=0;j<BR_OSTRVA;j++){
 
@@ -555,9 +555,9 @@ void skok_napred(){
             }
             else{
                 for (j=0;j<BR_OSTRVA;j++){
-         if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) |(matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
-                      pomocna_j=j;
-                     alive++;   
+                    if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) |(matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
+                                pomocna_j=j;
+                                alive++;   
                     }
                 }
                 if(alive==0){
@@ -565,7 +565,6 @@ void skok_napred(){
                 }
                 alive=0;
             }
-//             printf("pom_j %d \n", pomocna_j);
         }
 }
 void skok_levo(){
@@ -582,48 +581,40 @@ void skok_levo(){
                 pom_k2--;
                 pom_duzina_skoka=0;
                 animation=0;
-                if(pom_k2<=0){
+                //ukoliko je ziv==0 i posle skoka, to znaci da nismo skocili na ostrvo, vec da smo izgubili zivot.
+                int ziv=0;;
+//                 printf("pomocna_j levo: %d\n", pomocna_j);
+                if(pomocna_j<0){
                     resetuj();   
                 }
-                            int ziv=0;;
-            printf("pomocna_j levo: %d\n", pomocna_j-1);
-            if(pomocna_j<=0){
-             resetuj();   
-            }
-            else{
-            if(pom_linija2%2==1){
+                else{
+                    /*umanjujemo je za 1, posto su nam za proveru potrebne koordinate prethodnog ostrva*/
                     pomocna_j=pomocna_j-1;
-                if((matrica_ostrva_x[pom_linija2-1][pomocna_j]+znak*(lopta_x))>=-.5 /*&& (matrica_ostrva_x[pom_linija2-1][pomocna_j]- pomeranje_kocke*znak-(lopta_x))<=.4*/){
-                    ziv=1;
-                    printf("zivo");   
+                    if(pom_linija2%2==1){
+                        if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || 
+                                (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+                            ziv=1;
+                        }
+                        if(ziv==0){
+                            resetuj();
+                        }
+                    }
+                    else {
+                        if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || 
+                                (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+                            ziv=1;
+                            printf("zivo");   
+                        }
+                        if(ziv==0){
+                            resetuj();
+//                         printf("restart\n");   
+                        }
+                    }
                 }
-                    printf("matr x: %.3f\n", matrica_ostrva_x[pom_linija2-1][pomocna_j]);
-                    printf("matr l: %.3f\n", lopta_x);
-                if(ziv==0){
-                 printf("restart\n");   
-                }
-            }
-            else {
-                    pomocna_j=pomocna_j-1;
-                if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-znak*(lopta_x))<=.5 /*&& (matrica_ostrva_x[pom_linija2-1][pomocna_j]- pomeranje_kocke*znak-(lopta_x))<=.4*/){
-                    ziv=1;
-                    printf("zivo");   
-                }
-                    printf("matr x: %.3f\n", matrica_ostrva_x[pom_linija2-1][pomocna_j]);
-                    printf("matr l: %.3f\n", lopta_x);
-                if(ziv==0){
-                     resetuj();
-                 printf("restart\n");   
-                }
-                
-            }
-            }
-            printf("ziv : %d\n" ,ziv);
-
-                
+                /*nakon skoka ponovo je postavljamo na 0, kako bi imali mogucnost da ponovo ispitamo skok. */ 
+                ziv=0;
         }
-        
-    }
+}
 void skok_desno(){
         lopta_y+=0.08;
         lopta_x-=0.1;
@@ -637,42 +628,39 @@ void skok_desno(){
         if(pom_duzina_skoka==10){
             /* Postavljamo y koordinatu lopte na 0.02*/
             lopta_y=0.02;
-            pom_k2++;
+//             pom_k2++;
             pom_duzina_skoka=0;
             animation=0;
-            if(pom_k2>=7){
-              resetuj();   
+            int ziv=0;
+            /*ako pokusavamo da odemo van ostrva, gubi */
+            if(pomocna_j>5){
+             resetuj();
             }
-            int ziv=0;;
-            if(pom_linija2%2==1){
-                if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-znak*(lopta_x))>=-.5 /*&& (matrica_ostrva_x[pom_linija2-1][pomocna_j]- pomeranje_kocke*znak-(lopta_x))<=.4*/){
-                    ziv=1;
-                    printf("zivo");   
-                    pomocna_j++;
+            else{
+                /*uvecavamo je za 1, posto su nam za proveru potrebne koordinate narednog ostrva*/
+                pomocna_j=pomocna_j+1;
+                if(pom_linija2%2==1){
+                    if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+                        ziv=1;
+                    }
+                    if(ziv==0){
+                        resetuj();
+                    }
                 }
-                    printf("matr x: %.3f\n", matrica_ostrva_x[pom_linija2-1][pomocna_j]);
-                    printf("matr l: %.3f\n", lopta_x);
-                if(ziv==0){
-                 printf("restart\n");   
+                else {
+                if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
+                    ||(matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+                        ziv=1;
+                    }
+                    if(ziv==0){
+                        resetuj();
+                    }
                 }
-            }
-            else {
-                if((matrica_ostrva_x[pom_linija2-1][pomocna_j]+znak*(lopta_x))<=.5 /*&& (matrica_ostrva_x[pom_linija2-1][pomocna_j]- pomeranje_kocke*znak-(lopta_x))<=.4*/){
-                    ziv=1;
-                    printf("zivo");   
-                    pomocna_j++;
-                }
-                    printf("matr x: %.3f\n", matrica_ostrva_x[pom_linija2-1][pomocna_j]);
-                    printf("matr l: %.3f\n", lopta_x);
-                if(ziv==0){
-                    resetuj();
-                 printf("restart\n");   
-                }
-                
-            }
-            printf("ziv : %d\n" ,ziv);
         }
+        /*ponovo se postavlja na 0, kako bi mogli da izracunamo sledeci skok. */
+        ziv=0;
     }
+}
     
 void skok_nazad(){
         lopta_y+=0.08;
