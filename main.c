@@ -13,7 +13,6 @@
 #define L_TEXTURE "images.bmp"
 
 
-static void initializeTexture(void);
 /*Animacijski parametri za pokretanje animacija: */
 static int animation=0;
 static int animation2=0;
@@ -49,10 +48,16 @@ int pomocna_j=0;
 /* promenljiva za pomeranje manjih ostrva */
 float pomeranje_kocke=0;
 float pomeranje_kocke2=0;
+
 /* promenljive za racunanje sekundi */
 int broj_milisec=0;
 int broj_sekundi=0;
-    
+
+/* promenljive za racunanje osvojenih poena i broj nivo(na osnovu poena). */
+float poeni=0;
+float brojac_poena=0;
+int broj_nivoa=1;
+
 //promenljiva koja nam odredjujemo znak kretanja ostrva
 int znak=1;
 
@@ -63,7 +68,6 @@ float matrica_ostrva_z[BR_OSTRVA][BR_OSTRVA];
 
 
 /*promenljiva i funkcije za texture */
-
 GLuint loptica_texture;
 void texture_pod(GLuint loptica_texture);
 static void initializeTexture(void);
@@ -246,8 +250,8 @@ static void on_timer2(int value){
         }
         //ako je proslo 10 sekundi smanjujemo timer_interval2 za 1 i ponovo pocinje brojanje sekundi
 	    if(broj_sekundi>10){
-         broj_sekundi=0;
-         timer_interval2-=1;         
+            broj_sekundi=0;
+            timer_interval2-=2;         
         }
 //         printf("Broj sekundi : %d\n",broj_sekundi);
         
@@ -374,7 +378,7 @@ static void on_display(void){
 	    glLoadIdentity();
 	  
         //inicijalizacija teksture
-        initializeTexture();
+	   initializeTexture();
 
         /* pod  za teksture*/
         glPushMatrix();
@@ -459,7 +463,7 @@ void idi_desno(){
         lopta_x-=0.1;
 	    /* ukoliko se nalazi na velikom ostrvu i ide ulevo, proveravamo da li je ostrvo potonulo i da li je otisao previse desno. */
         if(pom==0){            
-            printf("%.2f\n",sigurno_y);
+//             printf("%.2f\n",sigurno_y);
             if(sigurno_y<=-.49){
               resetuj();
             }             
@@ -468,9 +472,18 @@ void idi_desno(){
             }
 	    }
 	     else{ 
-          if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_x-1.5))>0.15){
-             resetuj();
-         }
+            if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_x-1.5))>0.15){
+                resetuj();
+            }
+            
+            else{
+                poeni+=1;   
+                brojac_poena+=1;
+                if(brojac_poena>=100){
+                    brojac_poena-=100;
+                    broj_nivoa++;
+                }
+            }
         }
 	}
 void idi_levo(){
@@ -478,9 +491,9 @@ void idi_levo(){
         /* ukoliko se nalazi na velikom ostrvu i ide ulevo, proveravamo da li je ostrvo potonulo i da li je otisao previse levo. */
 	    if(pom==0){
             
-            printf("%.2f\n",sigurno_y);
+//             printf("%.2f\n",sigurno_y);
             if(sigurno_y<=-.49){
-              printf("Potonuo");
+//               printf("Potonuo");
              resetuj();
             }            
             if(lopta_x>=0.6){
@@ -489,16 +502,24 @@ void idi_levo(){
 	    }
 	    /*ukoliko je skocio sa velikog ostrva na mala i ukoliko ide ulevo proveravamo da li je spao sa njega. */
 	    else{ 
-         if((matrica_ostrva_z[pom_linija2-1][pomocna_j]-(lopta_x-1.5))< -0.15){
-             resetuj();
-         }
+            if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_x-1.5))< -0.15){
+                resetuj();
+            }
+            else{
+                poeni+=1;   
+                brojac_poena+=1;
+                if(brojac_poena>=100){
+                    brojac_poena-=100;
+                    broj_nivoa++;
+                }
+            }
         }
 }
 void idi_napred(){
         lopta_z+=0.1;
 	    if(pom==0){
             if(sigurno_y<=-.49){
-              printf("Potonuo");
+//               printf("Potonuo");
              resetuj();
             }
             if(lopta_z>=0.6){
@@ -506,18 +527,26 @@ void idi_napred(){
             }
 	    }
 	    else{ 
-         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_z-1.5))<0.17){
-             resetuj();
-         }
+            if((matrica_ostrva_z[pom_linija2-1][pomocna_j]-(lopta_z-1.5))<0.20){
+                resetuj();
+            }
+            else{
+                poeni+=1;   
+                brojac_poena+=1;
+                if(brojac_poena>=100){
+                   brojac_poena-=100;
+                   broj_nivoa++;
+                }
+            }
         }	    
 }
 void idi_nazad(){
         lopta_z-=0.1;
 	    if(pom==0){
             
-            printf("%.2f\n",sigurno_y);
+//             printf("%.2f\n",sigurno_y);
             if(sigurno_y<=-.49){
-              printf("Potonuo");
+//               printf("Potonuo");
              resetuj();
             }
             if(lopta_z<-0.6){
@@ -525,15 +554,20 @@ void idi_nazad(){
             }
 	    }
 	    else{ 
-         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_z-1.5))>-0.15){
-             resetuj();
-         }
+            if((matrica_ostrva_z[pom_linija2-1][pomocna_j]-(lopta_z-1.5))>-0.15){
+                resetuj();
+            }
+            poeni+=1;
+            brojac_poena+=1;
+            if(brojac_poena>=100){
+               brojac_poena-=100;
+               broj_nivoa++;
+            }
         }
 	}
 void skok_uvis(){
 	    lopta_y+=.1;
-//         printf("lopta_y : %f\n", lopta_y);
-        if(lopta_y>=0.5){
+        if(lopta_y>=0.8){
          lopta_y=0.02;
          animation=0;
         }
@@ -554,7 +588,7 @@ void skok_napred(){
             //iskljucujemo animaciju za skok;
             animation=0;
             if(pom_linija2>=7){
-             resetuj();   
+                resetuj();   
             }
             int j; 
             int alive1=0;
@@ -566,6 +600,13 @@ void skok_napred(){
                         (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                         pomocna_j=j;
                         alive1++;   
+                        poeni=poeni+10;
+                    
+                        brojac_poena+=10;
+                        if(brojac_poena>=100){
+                            brojac_poena-=100;
+                            broj_nivoa++;
+                        }
                    }
                 }
                 if(alive1==0){
@@ -579,6 +620,13 @@ void skok_napred(){
                     if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) |(matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                                 pomocna_j=j;
                                 alive++;   
+                                poeni= poeni+11;
+                                
+                                brojac_poena+=11;
+                                if(brojac_poena>=100){
+                                    brojac_poena-=100;
+                                    broj_nivoa++;
+                                }
                     }
                 }
                 if(alive==0){
@@ -615,6 +663,12 @@ void skok_levo(){
                         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || 
                                 (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
                             ziv=1;
+                            poeni+=15;
+                            brojac_poena+=15;
+                            if(brojac_poena>=100){
+                                brojac_poena-=100;
+                                broj_nivoa++;
+                            }
                         }
                         if(ziv==0){
                             resetuj();
@@ -624,7 +678,12 @@ void skok_levo(){
                         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || 
                                 (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
                             ziv=1;
-                            printf("zivo");   
+                            poeni+=15;
+                            brojac_poena+=15;
+                            if(brojac_poena>=100){
+                                brojac_poena-=100;
+                                broj_nivoa++;
+                            }   
                         }
                         if(ziv==0){
                             resetuj();
@@ -663,6 +722,12 @@ void skok_desno(){
                 if(pom_linija2%2==1){
                     if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
                         ziv=1;
+                        poeni+=18;
+                        brojac_poena+=18;
+                        if(brojac_poena>=100){
+                           brojac_poena-=100;
+                           broj_nivoa++;
+                        }
                     }
                     if(ziv==0){
                         resetuj();
@@ -672,6 +737,12 @@ void skok_desno(){
                 if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
                     ||(matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
                         ziv=1;
+                        poeni+=20;
+                        brojac_poena+=20;
+                        if(brojac_poena>=100){
+                           brojac_poena-=100;
+                           broj_nivoa++;
+                        }
                     }
                     if(ziv==0){
                         resetuj();
@@ -708,7 +779,13 @@ void skok_nazad(){
                 for(j=0;j<BR_OSTRVA;j++){
                     if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                      alive1++;   
+                     poeni+=20;
                      pomocna_j=j;
+                     brojac_poena+=20;
+                     if(brojac_poena>=100){
+                        brojac_poena-=100;
+                        broj_nivoa++;
+                     }
 
                  }
                 }
@@ -722,7 +799,13 @@ void skok_nazad(){
                 for (j=0;j<5;j++){
                   if((matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pom_linija2-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pom_linija2-1][j]+.15-(lopta_x-1.5)<=0.15)){
                      alive++;   
+                     poeni+=20;
                      pomocna_j=j;
+                     brojac_poena+=20;
+                     if(brojac_poena>=100){
+                        brojac_poena-=100;
+                        broj_nivoa++;
+                     }
                     }
                 }
                 if(alive==0){
@@ -749,7 +832,8 @@ void resetuj(){
      animation=0;
      animation2=0;
      pomeranje_kocke=0;
- 	 printf("\nKraj, resetovano\n");
+ 	 printf("\nKraj, OSVOJENO : %.2f POENA\n", poeni);
+     printf("Broj nivoa: %d\n", broj_nivoa);
 }
 
 /*funkcija za inicijalizaciju teksture: */
