@@ -59,7 +59,7 @@ int znak=1;
 /* matrica pomocu koje iscrtavamo manja ostrva */
 int matrica_ostrva[BR_OSTRVA][BR_OSTRVA];
 float matrica_ostrva_x[BR_OSTRVA][BR_OSTRVA];    
-float matrica_ostrva_y[BR_OSTRVA][BR_OSTRVA];
+float matrica_ostrva_z[BR_OSTRVA][BR_OSTRVA];
 
 
 /*promenljiva i funkcije za texture */
@@ -439,12 +439,13 @@ void nacrtaj_manja_ostrva(){
                     if(i%2==1){
                         /*cuvamo x i z koordinate */
                         matrica_ostrva_x[i][j]=-j+0.5+pomeranje_kocke-pomeranje_kocke2;
-                        matrica_ostrva_y[i][j]=i-0.5;
+                        matrica_ostrva_z[i][j]=i-0.5;
                         glTranslatef(-j+0.5+pomeranje_kocke-pomeranje_kocke2,0,i-0.5);
                     }
                     else{
+                        /*cuvamo x i z koordinate */
                         matrica_ostrva_x[i][j]=-j+0.5-pomeranje_kocke+pomeranje_kocke2;
-                        matrica_ostrva_y[i][j]=i-0.5;
+                        matrica_ostrva_z[i][j]=i-0.5;
                         glTranslatef(-j+0.5-pomeranje_kocke+pomeranje_kocke2,0,i-0.5);
                     }
                     glutSolidCube(0.3);
@@ -456,20 +457,25 @@ void nacrtaj_manja_ostrva(){
 
 void idi_desno(){
         lopta_x-=0.1;
-	    if(pom==0){
-            
+	    /* ukoliko se nalazi na velikom ostrvu i ide ulevo, proveravamo da li je ostrvo potonulo i da li je otisao previse desno. */
+        if(pom==0){            
             printf("%.2f\n",sigurno_y);
             if(sigurno_y<=-.49){
-              printf("Potonuo");
               resetuj();
             }             
             if(lopta_x<=-.6){ 
                 resetuj();
             }
 	    }
+	     else{ 
+          if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_x-1.5))>0.15){
+             resetuj();
+         }
+        }
 	}
 void idi_levo(){
         lopta_x+=0.1;   
+        /* ukoliko se nalazi na velikom ostrvu i ide ulevo, proveravamo da li je ostrvo potonulo i da li je otisao previse levo. */
 	    if(pom==0){
             
             printf("%.2f\n",sigurno_y);
@@ -481,6 +487,12 @@ void idi_levo(){
                 resetuj();
             }
 	    }
+	    /*ukoliko je skocio sa velikog ostrva na mala i ukoliko ide ulevo proveravamo da li je spao sa njega. */
+	    else{ 
+         if((matrica_ostrva_z[pom_linija2-1][pomocna_j]-(lopta_x-1.5))< -0.15){
+             resetuj();
+         }
+        }
 }
 void idi_napred(){
         lopta_z+=0.1;
@@ -493,8 +505,12 @@ void idi_napred(){
                 resetuj();
             }
 	    }
-	    
-	}
+	    else{ 
+         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_z-1.5))<0.17){
+             resetuj();
+         }
+        }	    
+}
 void idi_nazad(){
         lopta_z-=0.1;
 	    if(pom==0){
@@ -508,6 +524,11 @@ void idi_nazad(){
                 resetuj();
             }
 	    }
+	    else{ 
+         if((matrica_ostrva_x[pom_linija2-1][pomocna_j]-(lopta_z-1.5))>-0.15){
+             resetuj();
+         }
+        }
 	}
 void skok_uvis(){
 	    lopta_y+=.1;
