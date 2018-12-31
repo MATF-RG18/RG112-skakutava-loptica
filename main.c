@@ -106,7 +106,7 @@ void skok_nazad();
 /*funkcija za resetovanje. */
 void resetuj(float lopta_y);
 
-void odredjivanje_nivoa(float brojac_poena);
+int odredjivanje_nivoa(float brojac_poena);
     
 static void on_keyboard(unsigned char key,int x,int y);
 static void on_display(void);
@@ -130,6 +130,9 @@ int main (int argc, char ** argv){
     glutKeyboardFunc(on_keyboard);
     glutReshapeFunc(on_reshape);
     glutDisplayFunc(on_display);
+
+    //inicijalizacija teksture
+    initializeTexture();    
     
 	
     glClearColor(0.1,0.1,0.2,0);
@@ -421,9 +424,6 @@ static void on_display(void){
 	    glMatrixMode(GL_MODELVIEW);
 	    glLoadIdentity();
 
-        //inicijalizacija teksture
-         initializeTexture();    
-
         /* pod  za teksture*/
         glPushMatrix();
               texture_pod(loptica_texture);   	
@@ -528,7 +528,7 @@ void idi_desno(){
             if(lopta_x<=-.6){ 
                 resetuj(lopta_y);
             }
-	    }/*
+	    }
 	     else{ 
             if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-(lopta_x-1.5))>0.15){
                 resetuj(lopta_y);
@@ -538,7 +538,7 @@ void idi_desno(){
                 brojac_poena+=1;
 
             }
-        }*/
+        }
 	}
 void idi_levo(){
         lopta_x+=0.1;   
@@ -555,7 +555,7 @@ void idi_levo(){
             }
 	    }
 	    /*ukoliko je skocio sa velikog ostrva na mala i ukoliko ide ulevo proveravamo da li je spao sa njega. */
-        /*
+        
 	    else{ 
             if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-(lopta_x-1.5))< -0.15){
                 resetuj(lopta_y);
@@ -563,7 +563,7 @@ void idi_levo(){
             else{
                 brojac_poena+=1;
             }
-        }*/
+        }
 }
 void idi_napred(){
         lopta_z+=0.1;
@@ -576,7 +576,7 @@ void idi_napred(){
                 resetuj(lopta_y);
             }
 	    }
-	    /*
+	    
 	    else{ 
             if((matrica_ostrva_z[pomocna_i-1][pomocna_j]-(lopta_z-1.5))<0.20){
                 resetuj(lopta_y);
@@ -585,7 +585,7 @@ void idi_napred(){
                 brojac_poena+=1; 
             }
         }
-        */
+        
 }
 void idi_nazad(){
         lopta_z-=0.1;
@@ -597,13 +597,13 @@ void idi_nazad(){
             if(lopta_z<-0.6){
                 resetuj(lopta_y);
             }
-	    }/*
+	    }
 	    else{ 
             if((matrica_ostrva_z[pomocna_i-1][pomocna_j]-(lopta_z-1.5))>-0.15){
                 resetuj(lopta_y);
             }
             brojac_poena+=1;
-        }*/
+        }
 	}
 void skok_uvis(){
 	    lopta_y+=.1;
@@ -755,7 +755,7 @@ void skok_nazad(){
             pomocna_i--;
             animation=0;
             if(pomocna_i<=0){
-//                 lopta_y=0;
+                lopta_y=0;
                 
                 resetuj(lopta_y);   
             }
@@ -784,10 +784,35 @@ void skok_nazad(){
                 alive=0;
         }       
 }
+ 
+int proveri_skok_napred_nazad(int pomocna_i){
+    int j;
+    for(j=0;j<BR_OSTRVA;j++){
+       if((matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)<=0.15)){
+            alive=1;
+            alive2=1;
+            pomocna_j=j;
+        }
+        
+    }
+    return alive;
+}
+
+int proveri_skok_levo_desno(int pomocna_i,int pomocna_j){
+    if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
+                    ||(matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+                        alive=1;
+                        alive2=1;
     
+                    } 
+    return alive;
+}
+
+ 
 void resetuj(float lopta_y){
      if(lopta_y==0){
         printf("\nKraj, OSVOJENO : %.2f POENA\n", brojac_poena);
+        broj_nivoa=odredjivanje_nivoa(brojac_poena);
         printf("Broj nivoa: %d\n", broj_nivoa);
 //      exit(1);
      }
@@ -867,32 +892,12 @@ void texture_pod(GLuint loptica_texture){
 		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glPopMatrix();
 }
-void odredjivanje_nivoa(float brojac_poena){
+int odredjivanje_nivoa(float brojac_poena){
     float br_poena=brojac_poena;
-    if(br_poena>=100){
+    while(br_poena>=100){
           br_poena-=100;
           broj_nivoa++;
     }
-}
-int proveri_skok_napred_nazad(int pomocna_i){
-    int j;
-    for(j=0;j<BR_OSTRVA;j++){
-       if((matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)<=0.15)){
-            alive=1;
-            alive2=1;
-            pomocna_j=j;
-        }
-        
-    }
-    return alive;
+    return broj_nivoa;
 }
 
-int proveri_skok_levo_desno(int pomocna_i,int pomocna_j){
-    if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
-                    ||(matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
-                        alive=1;
-                        alive2=1;
-    
-                    } 
-    return alive;
-}
