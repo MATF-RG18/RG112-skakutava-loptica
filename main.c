@@ -17,6 +17,7 @@
 static int animation=0;
 static int animation2=0;
 
+static int resetovanje=0;
 int pokreni_ispitivanje=0;
 
 // float pomocna_animation2=0;
@@ -81,6 +82,10 @@ float matrica_ostrva_z[BR_OSTRVA][BR_OSTRVA];
 GLuint loptica_texture;
 void texture_pod(GLuint loptica_texture);
 static void initializeTexture(void);
+
+/* za ispis teksta na ekranu. */
+char tekst_poeni[15];
+void poeni_tekst(const char* tekst_poeni) ;
 
 /*Funkcije za iscrtavanje: */
 //funckija za crtanje lopte
@@ -316,6 +321,13 @@ static void on_timer(int value){
                     
                 }
             }
+            if(resetovanje==1){
+             lopta_y-=0.01;
+             if(lopta_y<=0){
+                 lopta_y=0;
+                 resetuj(lopta_y);   
+             }
+            }
             
             glutPostRedisplay();
             if(animation2==1){
@@ -440,6 +452,11 @@ static void on_display(void){
 	    /*Funkcija za crtanje manjeg ostrva: */
         nacrtaj_manja_ostrva();
  	    
+        //ispisujemo nivo
+        sprintf(tekst_poeni, "Poeni: %.f", brojac_poena);
+        poeni_tekst(tekst_poeni);
+    
+        
 	    glutSwapBuffers();
 	}
 	
@@ -544,19 +561,16 @@ void idi_levo(){
         lopta_x+=0.1;   
         /* ukoliko se nalazi na velikom ostrvu i ide ulevo, proveravamo da li je ostrvo potonulo i da li je otisao previse levo. */
 	    if(pomocna_velikoOst==0){
-            
-//             printf("%.2f\n",sigurno_y);
             if(sigurno_y<=-.49){
-//               printf("Potonuo");
              resetuj(lopta_y);
             }            
             if(lopta_x>=0.6){
                 resetuj(lopta_y);
             }
 	    }
-	    /*ukoliko je skocio sa velikog ostrva na mala i ukoliko ide ulevo proveravamo da li je spao sa njega. */
-        
-	    else{ 
+	    
+	    /*ukoliko je skocio sa velikog ostrva na mala i ukoliko ide ulevo proveravamo da li je spao sa njega. */        
+	    else{
             if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-(lopta_x-1.5))< -0.15){
                 resetuj(lopta_y);
             }
@@ -592,7 +606,7 @@ void idi_nazad(){
 	    if(pomocna_velikoOst==0){
             if(sigurno_y<=-.49){
                printf("Potonuo");
-             resetuj(lopta_y);
+               resetuj(lopta_y);
             }
             if(lopta_z<-0.6){
                 resetuj(lopta_y);
@@ -621,78 +635,67 @@ void skok_napred(){
         //pomocna koja nam pomaza da odredimo duzinu skoka, kada postane 10 treba da se prekine animacija skoka
         pom_duzina_skoka++;
         if(pom_duzina_skoka==10){
-            lopta_y=0.02;
+            lopta_y=0;
             //promenljiva koja nam pokazuje na kom smo i po redu od ostrva, broji od 1 i povecava se za jedan svaki put pri skoku napred 
             pomocna_i++;
             /*duzina skoka nam ponovo postaje 0, zbog sledeceg. */
             pom_duzina_skoka=0;
             //iskljucujemo animaciju za skok;
             animation=0;
-            if(pomocna_i>=7){
-                resetuj(lopta_y);   
+            
+            if(pomocna_i>=6){
+                resetovanje=1;
             }
             //alive da proverimo da li je loptica pala van ostrva.Ukoliko je na ostrvo pala alive ili alive1 ce biti povecane pri        pozivu funckije, dok u suprotnom ostaju 0 i samim tim loptica nije pala na ostrvo.
-            if(pomocna_i%2==1){
-                alive=proveri_skok_napred_nazad(pomocna_i);
-                if(alive==0){
-                  resetuj(lopta_y);
-                }
+            
+             alive=proveri_skok_napred_nazad(pomocna_i);
+             if(alive==0){
+                resetovanje=1;
+             }
+             if(pomocna_i%2==1){
                 brojac_poena+=10;
-            }
-            else{
-                alive=proveri_skok_napred_nazad(pomocna_i);
-                if(alive==0){
-                    resetuj(lopta_y);
-                }
+             }
+             else{
                 brojac_poena+=11;
-            }
-                alive=0;
-
-        }
+             }
+         }
+         alive=0;
 }
 void skok_levo(){
         lopta_y+=0.08;
         lopta_x+=0.1;
         pom_duzina_skoka++;
-        //ako pokusamo da skocimo sa sigurnog ostrva ulevo 
+        /*ako pokusamo da skocimo sa sigurnog ostrva ulevo  */
         if(pomocna_velikoOst==0){ 
           resetuj(lopta_y);   
         }
         
         if(pom_duzina_skoka==10){
-                lopta_y=0.02;
-//                 pom_k2--;
+               lopta_y=0;
                 pom_duzina_skoka=0;
                 animation=0;
                 //ukoliko je alive==0 i posle skoka, to znaci da nismo skocili na ostrvo, vec da smo izgubili zivot.
-//                 int alive=0;
-//                 printf("pomocna_j levo: %d\n", pomocna_j);
                 if(pomocna_j<0){
                     resetuj(lopta_y);   
                 }
                 else{
                     /*umanjujemo je za 1, posto su nam za proveru potrebne koordinate prethodnog ostrva*/
                     pomocna_j=pomocna_j-1;
-                    if(pomocna_i%2==1){
-                            
                         alive=proveri_skok_levo_desno(pomocna_i,pomocna_j);
                         if(alive==0){
-                            resetuj(lopta_y);
+                            resetovanje=1;
                         }                            
+                    if(pomocna_i%2==1){
                         brojac_poena+=15;
                     }
                     else {
-                        alive=proveri_skok_levo_desno(pomocna_i,pomocna_j);
-                        if(alive==0){
-                            resetuj(lopta_y);
-//                         printf("restart\n");   
-                        }
-                            brojac_poena+=15;
+                            brojac_poena+=16;
                     }
-                    alive=0;
                 }
-                /*nakon skoka ponovo je postavljamo na 0, kako bi imali mogucnost da ponovo ispitamo skok. */ 
+
         }
+        /*nakon skoka ponovo je postavljamo na 0, kako bi imali mogucnost da ponovo ispitamo skok. */ 
+        alive=0;
 }
 void skok_desno(){
         lopta_y+=0.08;
@@ -704,12 +707,11 @@ void skok_desno(){
          resetuj(lopta_y);   
         }
         if(pom_duzina_skoka==10){
+
             /* Postavljamo y koordinatu lopte na 0.02*/
-            lopta_y=0.02;
-//             pom_k2++;
+            lopta_y=0;
             pom_duzina_skoka=0;
             animation=0;
-//             int alive=0;
             /*ako pokusavamo da odemo van ostrva, gubi */
             if(pomocna_j>5){
              resetuj(lopta_y);
@@ -717,26 +719,20 @@ void skok_desno(){
             else{
                 /*uvecavamo je za 1, posto su nam za proveru potrebne koordinate narednog ostrva*/
                 pomocna_j=pomocna_j+1;
+                alive=proveri_skok_levo_desno(pomocna_i,pomocna_j);
+                if(alive==0){
+                    resetovanje=1;
+                }
                 if(pomocna_i%2==1){
-                    alive=proveri_skok_levo_desno(pomocna_i,pomocna_j);
-                    
-                    if(alive==0){
-                        resetuj(lopta_y);
-                    }
                     brojac_poena+=18;
                 }
                 else {
-                    alive=proveri_skok_levo_desno(pomocna_i,pomocna_j);
-                    if(alive==0){
-                        resetuj(lopta_y);
-                    }
-                      
                       brojac_poena+=20;
                 }
-        /*ponovo se postavlja na 0, kako bi mogli da izracunamo sledeci skok. */
-            alive=0;
         }
     }
+        /*ponovo se postavlja na 0, kako bi mogli da izracunamo sledeci skok. */
+        alive=0;
 }
     
 void skok_nazad(){
@@ -748,47 +744,34 @@ void skok_nazad(){
             resetuj(lopta_y);   
         }
         if(pom_duzina_skoka==10){
-            lopta_y=0.02;
+            lopta_y=0;
             pom_duzina_skoka=0;
            
             //pomocna koja nam pomaze da odredimo na kom smo i od pocetnog- velikog ostrva, kada se vracamo unazad kad pocetnoj poziciji, ona se smanjuje za 1
             pomocna_i--;
             animation=0;
             if(pomocna_i<=0){
-                lopta_y=0;
-                
                 resetuj(lopta_y);   
             }
             
-            if(pomocna_i%2==1){
                 alive=proveri_skok_napred_nazad(pomocna_i);
                 if(alive==0){
-                    lopta_y=0;
-                    lopta_z=0.02;
+                    resetovanje=1;
 
                 }
-            }
-             else{
-                proveri_skok_napred_nazad(pomocna_i);
-                if(alive==0){
-//                     resetuj(lopta_y);
-                    lopta_y=0;
-                    lopta_z=0.02;
-
-                }
-            }
+            
              if(alive==0){
-              resetuj(lopta_y);   
+                 resetovanje=1;
         }
                 brojac_poena+=20;
-                alive=0;
         }       
+        alive=0;
 }
  
 int proveri_skok_napred_nazad(int pomocna_i){
     int j;
     for(j=0;j<BR_OSTRVA;j++){
-       if((matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)<=0.15)){
+       if((matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)>=-0.17 && matrica_ostrva_x[pomocna_i-1][j]-0.15-(lopta_x-1.5)<=0) || (matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][j]+.15-(lopta_x-1.5)<=0.17)){
             alive=1;
             alive2=1;
             pomocna_j=j;
@@ -799,8 +782,8 @@ int proveri_skok_napred_nazad(int pomocna_i){
 }
 
 int proveri_skok_levo_desno(int pomocna_i,int pomocna_j){
-    if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.15 && matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
-                    ||(matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)<=0.15)){
+    if((matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)>=-0.17 && matrica_ostrva_x[pomocna_i-1][pomocna_j]-0.15-(lopta_x-1.5)<=0)            
+                    ||(matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)>=0 && matrica_ostrva_x[pomocna_i-1][pomocna_j]+.15-(lopta_x-1.5)<=0.17)){
                         alive=1;
                         alive2=1;
     
@@ -812,33 +795,13 @@ int proveri_skok_levo_desno(int pomocna_i,int pomocna_j){
 void resetuj(float lopta_y){
      if(lopta_y==0){
         printf("\nKraj, OSVOJENO : %.2f POENA\n", brojac_poena);
-        broj_nivoa=odredjivanje_nivoa(brojac_poena);
-        printf("Broj nivoa: %d\n", broj_nivoa);
-//      exit(1);
+         broj_nivoa=odredjivanje_nivoa(brojac_poena);
+         printf("Broj nivoa: %d\n", broj_nivoa);
      }
-        exit(0);
-        return;
-}   /*
-     lopta_x=0;
-	 lopta_z=0;
-     lopta_y=0;
-     pomocna_velikoOst=0;
-     sigurno_x=-1.5;
-     sigurno_y=-.35;
-     sigurno_z=-1.5;
-     pom_duzina_skoka=0;
-//      pom_k2=3;
-     pom_duzina_skoka=0;
-     pomocna_i=0;
-     pomocna_j=0; 
-     animation=0;
-     animation2=0;
-     pomeranje_kocke=0;
- 
-     odredjivanje_nivoa(brojac_poena);
-     return ;
+     exit(1);
+     return;
 }
-*/
+
 /*funkcija za inicijalizaciju teksture: */
 void initializeTexture(void)
 {
@@ -893,11 +856,27 @@ void texture_pod(GLuint loptica_texture){
 	glPopMatrix();
 }
 int odredjivanje_nivoa(float brojac_poena){
-    float br_poena=brojac_poena;
-    while(br_poena>=100){
-          br_poena-=100;
+    while(brojac_poena>=100){
+          brojac_poena-=100;
           broj_nivoa++;
     }
     return broj_nivoa;
 }
 
+/*Funkcija za ispis teksta na ekranu. */ 
+void poeni_tekst(const char* tekst_poeni) {
+	glDisable(GL_LIGHTING);
+	//boja teksta		
+    glEnable(GL_COLOR_MATERIAL);
+	glColor3f(.1,.6,.9);
+    
+	int duzina,i;
+	//pozicija
+	glRasterPos3f(-15,0,35);
+    duzina=(int)strlen(tekst_poeni);
+    for(i=0;i<duzina;i++){
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, tekst_poeni[i]);
+    }
+    glDisable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+}
